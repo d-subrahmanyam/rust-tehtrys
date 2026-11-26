@@ -314,7 +314,6 @@ pub fn run() -> Result<(), String> {
             app.accumulator_ms -= TICK_MS;
         }
 
-        // event pump tick for DAS outside fixed steps when no accumulated ticks
         let snap = app.snapshot();
         render::draw(&mut canvas, &snap, &app.fx);
     }
