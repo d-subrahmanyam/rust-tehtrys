@@ -5,18 +5,22 @@ and documentation of all major game/system **flows**.
 
 ## Source of truth
 
-All gameplay rules are derived from the official design document:
+All gameplay rules are derived from the official design document, **used here purely
+as a reference**:
 
 - ***Tetris® Design Guideline*, March 2009**, © 2009 Blue Planet Software, Inc.
   (96 pages; marked **CONFIDENTIAL**; "Tetris®" trademarked; intended for licensed
-  products). **Not distributed in this repo**; kept **local-only** and git-ignored
-  (`docs/2009 Tetris Design Guideline.pdf`, optionally a local text restatement).
+  products). We **used it for reference** to extract mechanics; it is **not included
+  or redistributed in this repo**. If you want it locally, keep your own copy — it
+  is git-ignored at `docs/2009 Tetris Design Guideline.pdf` (optionally a local
+  text-only restatement at `docs/tetris-design-guideline.md`, also git-ignored);
+  nothing here assumes either is present.
 
 Section references like *(§5.7)* or *(A1.4.2)* point into that guideline. My notes,
-plan, and appendices are original writing; no protected artwork/audio; no rights to
-the source document or trademark are granted (see [LICENSE](../../LICENSE)).
-Where this plan adds implementation choices not fixed by the guideline, that is
-called out explicitly.
+plan, and appendices are **original writing** (factual rules restated); no protected
+artwork/audio; no rights to the source document or trademark are granted (see
+[LICENSE](../../LICENSE)). Where this plan adds implementation choices not fixed by
+the guideline, that is called out explicitly.
 
 > **Note on reading the PDF.** Text was extracted for analysis. The guideline's
 > diagrams (tetrimino shapes, T-Spin examples, game-over diagrams, **Super Rotation
