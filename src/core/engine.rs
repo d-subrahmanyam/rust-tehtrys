@@ -78,6 +78,8 @@ pub struct TetrisEngine {
     pub game_over: Option<GameOverReason>,
     /// whether to level up. (§12 Sprint/Ultra don't)
     pub level_up_enabled: bool,
+    /// Hold Queue enabled. (§2.5.2 default on)
+    pub hold_enabled: bool,
     events: Vec<EngineEvent>,
 }
 
@@ -124,6 +126,7 @@ impl TetrisEngine {
             pending_spawn: Some(SpawnSource::Bag),
             game_over: None,
             level_up_enabled: true,
+            hold_enabled: true,
             events: Vec::new(),
         };
         eng.goal = crate::core::levels::starting_goal(goal_system, level);
@@ -290,6 +293,9 @@ impl TetrisEngine {
     // ---------- hold (§5.6) ----------
 
     fn try_hold(&mut self) {
+        if !self.hold_enabled {
+            return; // Hold Queue can be turned off. (§2.5.2, FR-T9)
+        }
         if self.hold_used {
             return; // once per lock. (§5.6)
         }

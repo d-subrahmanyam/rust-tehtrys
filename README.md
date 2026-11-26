@@ -65,5 +65,5 @@ if needed. Run with `cargo run`.
 **Phase 0 + Phase 1 complete** (scaffolding + pure engine; fmt/clippy/test clean;
 `#![forbid(unsafe_code)]`). **Phase 2 + Phase 3 complete**: SDL2 shell + fixed-timestep + keymap/DAS + full
 presentation (HUD/Next/Hold/Ghost/notifications/flashes/pause/game-over/mono);
-**95 tests** (79 + 16). **Phase 4** next. See
+**95 tests** (79 + 16). **Phase 4 complete**; Phase 5 next. See
 [docs/plan/07-phases.md](docs/plan/07-phases.md).

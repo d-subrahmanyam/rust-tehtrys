@@ -104,7 +104,7 @@ menus navigate; cosmetic only (logic unchanged; tests still green).
 
 ---
 
-## Phase 4 — Variants, progression, persistence
+## Phase 4 — Variants, progression, persistence  ✅ **done**
 
 **Goal.** Full ruleset & retention.
 

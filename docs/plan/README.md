@@ -101,7 +101,10 @@ and the application state machine.
 - [x] **Phase 2** SDL2 shell + fixed-timestep + input/DAS + render (pause/restart).
 - [x] **Phase 3** full presentation (HUD/Next/Hold/Ghost/notifications/flashes/
       hard-drop trail/pause/game-over/monochrome); embedded font; see [07](07-phases.md).
-- [ ] **Phase 4** variants + goals + persistence + high scores; **Phase 5** sound.
+- [x] **Phase 4** app state machine + menus; variants (Marathon/Sprint/Ultra);
+      start level; lock-down mode; next-length/hold/ghost/mono; goal system;
+      **high-score table + settings persistence** (custom text; no serde).
+- [ ] **Phase 5** sound/music + remapping UI + replay.
 
 ## Recommended reading order
 

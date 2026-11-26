@@ -389,7 +389,7 @@ pub fn draw(canvas: &mut Canvas<Window>, snap: &RenderSnapshot, fx: &Fx) {
     let mut ny = py + 70;
     draw_text(canvas, px, ny, "NEXT", DIM, 1);
     ny += 14;
-    for k in snap.next.iter().take(5) {
+    for k in snap.next.iter() {
         draw_mini_piece(canvas, px + 4, ny, *k, mono, false);
         ny += 42;
     }
@@ -567,4 +567,243 @@ pub fn format_time(ms: u64) -> String {
     let s = total % 60;
     let cs = (ms % 1000) / 10;
     format!("{m:02}:{s:02}.{cs:02}")
+}
+
+// ---------- screens (Phase 4; §2, §11; flows/14) ----------
+
+const SCREEN_TEXT: Color = Color::RGB(235, 235, 240);
+const SCREEN_DIM: Color = Color::RGB(150, 150, 165);
+const SCREEN_ACCENT: Color = Color::RGB(120, 200, 255);
+const SCREEN_SEL: Color = Color::RGB(255, 230, 120);
+
+fn clear_bg(canvas: &mut Canvas<Window>) {
+    let (w, h) = canvas.window().size();
+    fill(canvas, Rect::new(0, 0, w, h), BG);
+    let _ = (w, h);
+}
+
+/// Title screen. (§2.2) No proprietary logo; simple text.
+pub fn draw_title(canvas: &mut Canvas<Window>, _mono: bool) {
+    clear_bg(canvas);
+    let (w, h) = canvas.window().size();
+    let title = "TETHRYS";
+    draw_text(
+        canvas,
+        (w as i32 - text_width(title, 5)) / 2,
+        h as i32 / 3,
+        title,
+        SCREEN_ACCENT,
+        5,
+    );
+    let sub = "TETRIS-STYLE  -  PRESS ANY KEY";
+    draw_text(
+        canvas,
+        (w as i32 - text_width(sub, 1)) / 2,
+        h as i32 / 3 + 60,
+        sub,
+        SCREEN_DIM,
+        1,
+    );
+    canvas.present();
+}
+
+/// Main menu. (§2.3) items + current values; navigate Up/Down Enter.
+pub fn draw_main_menu(canvas: &mut Canvas<Window>, index: usize, values: &[String], _mono: bool) {
+    clear_bg(canvas);
+    let (w, _h) = canvas.window().size();
+    let title = "MAIN MENU";
+    draw_text(
+        canvas,
+        (w as i32 - text_width(title, 3)) / 2,
+        30,
+        title,
+        SCREEN_ACCENT,
+        3,
+    );
+    let labels = [
+        "NEW GAME",
+        "VARIATION",
+        "START LEVEL",
+        "LOCK DOWN",
+        "OPTIONS",
+        "HIGH SCORE",
+        "QUIT",
+    ];
+    let x = 60;
+    let mut y = 90;
+    for (i, label) in labels.iter().enumerate() {
+        let sel = i == index;
+        let color = if sel { SCREEN_SEL } else { SCREEN_TEXT };
+        let marker = if sel { ">" } else { " " };
+        draw_text(canvas, x, y, marker, color, 2);
+        draw_text(canvas, x + 24, y, label, color, 2);
+        if let Some(v) = values.get(i)
+            && !v.is_empty()
+        {
+            draw_text(
+                canvas,
+                x + 24 + text_width(label, 2) + 20,
+                y + 2,
+                v,
+                SCREEN_DIM,
+                1,
+            );
+        }
+        y += 28;
+    }
+    draw_text(
+        canvas,
+        x,
+        y + 16,
+        "ARROWS  ENTER=SELECT  ESC=BACK",
+        SCREEN_DIM,
+        1,
+    );
+    canvas.present();
+}
+
+/// Options. (§2.5) simple list; keys shown.
+pub fn draw_options(canvas: &mut Canvas<Window>, s: &crate::persist::Settings, _mono: bool) {
+    clear_bg(canvas);
+    let (w, _h) = canvas.window().size();
+    let title = "OPTIONS";
+    draw_text(
+        canvas,
+        (w as i32 - text_width(title, 3)) / 2,
+        30,
+        title,
+        SCREEN_ACCENT,
+        3,
+    );
+    let lock = s.lock_ruleset.to_uppercase();
+    let next = format!("{} (up/down)", s.next_len);
+    let hold = if s.hold_enabled { "ON" } else { "OFF" };
+    let ghost = if s.ghost_enabled { "ON" } else { "OFF" };
+    let mono = if s.monochrome { "ON" } else { "OFF" };
+    let goal = s.goal_system.to_uppercase();
+    let rows = [
+        ("LOCK DOWN (menu)", lock.as_str()),
+        ("NEXT QUEUE (up/down)", next.as_str()),
+        ("HOLD (C)", hold),
+        ("GHOST (X)", ghost),
+        ("MONOCHROME (M)", mono),
+        ("GOAL SYSTEM (space)", goal.as_str()),
+    ];
+    let mut y = 90;
+    for (k, v) in rows {
+        draw_text(canvas, 60, y, k, SCREEN_TEXT, 1);
+        draw_text(canvas, 320, y, v, SCREEN_DIM, 1);
+        y += 24;
+    }
+    draw_text(canvas, 60, y + 16, "ESC = BACK", SCREEN_DIM, 1);
+    canvas.present();
+}
+
+/// High score table per variant. (§11.2, §2.3.4)
+pub fn draw_high_score(
+    canvas: &mut Canvas<Window>,
+    table: &crate::persist::HighScoreTable,
+    variant: &str,
+    _mono: bool,
+) {
+    clear_bg(canvas);
+    let (w, _h) = canvas.window().size();
+    let title = "HIGH SCORES";
+    draw_text(
+        canvas,
+        (w as i32 - text_width(title, 3)) / 2,
+        30,
+        title,
+        SCREEN_ACCENT,
+        3,
+    );
+    draw_text(canvas, 60, 70, variant, SCREEN_ACCENT, 1);
+    draw_text(
+        canvas,
+        60,
+        88,
+        "NAME   SCORE   LVL   LINES   TIME",
+        SCREEN_DIM,
+        1,
+    );
+    let mut y = 110;
+    let top = table.top(variant, 10);
+    if top.is_empty() {
+        draw_text(canvas, 60, y, "NO SCORES YET", SCREEN_DIM, 1);
+    }
+    for e in top {
+        let line = format!(
+            "{:<5} {:>8} {:>4} {:>6}  {}",
+            e.name,
+            e.score,
+            e.level,
+            e.lines,
+            format_time(e.time_ms)
+        );
+        draw_text(canvas, 60, y, &line, SCREEN_TEXT, 1);
+        y += 18;
+    }
+    draw_text(canvas, 60, y + 16, "ESC = BACK", SCREEN_DIM, 1);
+    canvas.present();
+}
+
+/// Game over + end rewards seam + high score note. (§11; §13.1.4)
+#[allow(clippy::too_many_arguments)]
+pub fn draw_game_over(
+    canvas: &mut Canvas<Window>,
+    score: u64,
+    lines: u32,
+    level: u32,
+    time_ms: u64,
+    reason: &str,
+    variant: &str,
+    high_score: u64,
+    _mono: bool,
+) {
+    clear_bg(canvas);
+    let (w, h) = canvas.window().size();
+    let cx = w as i32 / 2;
+    let label = if reason == "GAME OVER" {
+        "GAME OVER"
+    } else {
+        "COMPLETE"
+    };
+    draw_text(
+        canvas,
+        cx - text_width(label, 3) / 2,
+        h as i32 / 3,
+        label,
+        GAMEOVER,
+        3,
+    );
+    draw_text(
+        canvas,
+        cx - text_width(reason, 1) / 2,
+        h as i32 / 3 + 34,
+        reason,
+        TEXT,
+        1,
+    );
+    let lines_s = [
+        format!("VARIANT {}", variant),
+        format!("SCORE {}", score),
+        format!("HIGH {}", high_score),
+        format!("LINES {}", lines),
+        format!("LEVEL {}", level),
+        format!("TIME {}", format_time(time_ms)),
+    ];
+    let mut y = h as i32 / 3 + 60;
+    for l in &lines_s {
+        draw_text(canvas, cx - text_width(l, 1) / 2, y, l, TEXT, 1);
+        y += 16;
+    }
+    draw_text(
+        canvas,
+        cx - text_width("R=RESTART  ESC=MENU", 1) / 2,
+        y + 12,
+        "R=RESTART  ESC=MENU",
+        SCREEN_DIM,
+        1,
+    );
+    canvas.present();
 }
