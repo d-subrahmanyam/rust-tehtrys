@@ -1,0 +1,17 @@
+[package]
+name = "tehtrys"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "tehtrys"
+path = "src/lib.rs"
+
+[[bin]]
+name = "tehtrys"
+path = "src/main.rs"
+
+[dependencies]
+# SDL2 is used by the presentation layer (Phase 2+); `core` has no external deps.
+sdl2 = "0.39.0"
+

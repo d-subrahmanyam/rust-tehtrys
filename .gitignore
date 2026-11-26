@@ -1,0 +1,9 @@
+/target
+
+# Local-only reference materials (copyrighted/confidential; NOT for distribution)
+# Keep these locally; never commit. (See LICENSE trademark/source notice.)
+docs/2009 Tetris Design Guideline.pdf
+docs/tetris-design-guideline.md
+
+# IDE
+.idea/
