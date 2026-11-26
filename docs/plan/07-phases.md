@@ -69,7 +69,7 @@ can play scripted inputs & print events. **No rendering yet.**
 
 ---
 
-## Phase 2 — SDL2 shell + game loop + input
+## Phase 2 — SDL2 shell + game loop + input  🚧 **in progress**
 
 **Goal.** Playable window; fixed timestep; input; minimal render.
 

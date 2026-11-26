@@ -1,0 +1,7 @@
+# Local SDL2 discovery. This environment provides SDL2 via linuxbrew without a
+# `libsdl2-dev` `libSDL2.so` symlink on the system linker path. 
+# Prefer `sudo apt install libsdl2-dev` (or `brew install sdl2`) which provides
+# `libSDL2.so`; then this block is unnecessary. Adjust for your machine.
+[env]
+LIBRARY_PATH = { value = "/home/linuxbrew/.linuxbrew/lib", force = false, relative = false }
+LD_LIBRARY_PATH = { value = "/home/linuxbrew/.linuxbrew/lib", force = false, relative = false }

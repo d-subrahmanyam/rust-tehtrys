@@ -98,8 +98,9 @@ and the application state machine.
 - [x] Plan & flow documentation (this folder).
 - [x] **Phase 0** scaffolding; **Phase 1** pure `core` engine + 86 tests
       (fmt/clippy/test clean); `#![forbid(unsafe_code)]`.
-- [ ] **Phase 2** SDL2 shell + fixed-timestep + input/DAS + minimal render — next;
-      see [07-phases.md](07-phases.md).
+- [~] **Phase 2** SDL2 shell + fixed-timestep + input/DAS + minimal render
+      (pause/restart/quit) in progress; see [07-phases.md](07-phases.md).
+      Build needs SDL2 `libSDL2.so`; repo `.cargo/config.toml` sets `LIBRARY_PATH`.
 
 ## Recommended reading order
 

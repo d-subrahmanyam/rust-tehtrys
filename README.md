@@ -1,9 +1,8 @@
 # tehtrys
 
 A **Tetris** game in Rust (edition 2024), built to faithfully implement the official
-**2009 Tetris Design Guideline** mechanics. **Phase 0 + Phase 1 done**: pure,
-deterministic, fully-tested core engine; **Phase 2 (SDL2)** next. See
-[`docs/plan/`](docs/plan/README.md).
+**2009 Tetris Design Guideline** mechanics. **Phase 0 + Phase 1 done**: pure, deterministic, fully-tested core engine;
+**Phase 2 (SDL2 desktop shell) in progress**. See [`docs/plan/`](docs/plan/README.md).
 
 > ## ⚠️ Disclaimer
 >
@@ -48,8 +47,10 @@ cargo clippy --all-targets -- -D warnings
 cargo fmt --check
 ```
 
-Requires a Rust toolchain (1.100+) and **SDL2** system library (`sdl2` crate; not
-yet used in Phase 1). On Debian/Ubuntu: `sudo apt install libsdl2-dev`.
+Requires a Rust toolchain (1.100+) and **SDL2** system library. On Debian/Ubuntu:
+`sudo apt install libsdl2-dev` (provides `libSDL2.so`). This repo also ships
+`.cargo/config.toml` `[env]` pointing at a linuxbrew SDL2; override `LIBRARY_PATH`
+if needed. Run with `cargo run`.
 
 ## Docs
 
@@ -61,6 +62,7 @@ yet used in Phase 1). On Debian/Ubuntu: `sudo apt install libsdl2-dev`.
 
 ## Status
 
-**Phase 0 + Phase 1 complete** (scaffolding + pure engine + **86 tests**;
-fmt/clippy/test clean; `#![forbid(unsafe_code)]`). **Next: Phase 2** SDL2 shell +
-fixed-timestep + input + render. See [docs/plan/07-phases.md](docs/plan/07-phases.md).
+**Phase 0 + Phase 1 complete** (scaffolding + pure engine; fmt/clippy/test clean;
+`#![forbid(unsafe_code)]`). **Phase 2 in progress**: SDL2 shell + fixed-timestep +
+keymap/DAS + minimal render + pause/restart/quit. **93 tests** (77 + 16). See
+[docs/plan/07-phases.md](docs/plan/07-phases.md).

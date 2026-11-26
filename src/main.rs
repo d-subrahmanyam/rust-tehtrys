@@ -1,6 +1,8 @@
-//! tehtrys binary. Phase 0/1: scaffolding; the pure engine lives in the `core`
-//! library. The SDL2 presentation layer is wired in Phase 2.
+//! tehtrys binary. Phase 2: SDL2 desktop shell over the pure `core` engine.
 
 fn main() {
-    println!("tehtrys — Phase 0/1 scaffolding. Run `cargo test`.");
+    if let Err(e) = tehtrys::app::run() {
+        eprintln!("tehtrys error: {e}");
+        std::process::exit(1);
+    }
 }
