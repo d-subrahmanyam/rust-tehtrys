@@ -88,9 +88,14 @@ and the application state machine.
 
 ## Implementation status
 
-- [x] Design PDF ingested; rules extracted with section references.
+- [x] Source guideline ingested; rules extracted with section references. Source
+      PDF + any converted restatement are **local-only, not distributed**
+      (git-ignored); see trademark/source note above.
 - [x] Plan & flow documentation (this folder).
-- [ ] Implementation — begins after plan approval; see [07-phases.md](07-phases.md).
+- [x] **Phase 0** scaffolding; **Phase 1** pure `core` engine + 86 tests
+      (fmt/clippy/test clean); `#![forbid(unsafe_code)]`.
+- [ ] **Phase 2** SDL2 shell + fixed-timestep + input/DAS + minimal render — next;
+      see [07-phases.md](07-phases.md).
 
 ## Recommended reading order
 

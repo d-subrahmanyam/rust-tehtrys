@@ -1,8 +1,9 @@
 # tehtrys
 
 A **Tetris** game in Rust (edition 2024), built to faithfully implement the official
-**2009 Tetris Design Guideline** mechanics. Phase 0/1: pure, deterministic,
-fully-tested core engine (no rendering yet); see [`docs/plan/`](docs/plan/README.md).
+**2009 Tetris Design Guideline** mechanics. **Phase 0 + Phase 1 done**: pure,
+deterministic, fully-tested core engine; **Phase 2 (SDL2)** next. See
+[`docs/plan/`](docs/plan/README.md).
 
 > ## ⚠️ Disclaimer
 >
@@ -55,9 +56,11 @@ yet used in Phase 1). On Debian/Ubuntu: `sudo apt install libsdl2-dev`.
 - [docs/plan/README.md](docs/plan/README.md) — complete plan, phases, flows, appendices.
 - Source rules: the **2009 Tetris Design Guideline** (© Blue Planet Software;
   CONFIDENTIAL; "Tetris®"). **Not distributed in this repo**; kept **local-only**
-  and git-ignored. Mechanics are restated in my own `docs/plan/`.
+  and git-ignored (`docs/2009 Tetris Design Guideline.pdf`, plus optional local
+  restatement). Mechanics are restated in my own `docs/plan/`.
 
 ## Status
 
-Phase 0 + Phase 1 complete (scaffolding + pure engine + tests). Next: Phase 2 SDL2
-shell. See [docs/plan/07-phases.md](docs/plan/07-phases.md).
+**Phase 0 + Phase 1 complete** (scaffolding + pure engine + **86 tests**;
+fmt/clippy/test clean; `#![forbid(unsafe_code)]`). **Next: Phase 2** SDL2 shell +
+fixed-timestep + input + render. See [docs/plan/07-phases.md](docs/plan/07-phases.md).

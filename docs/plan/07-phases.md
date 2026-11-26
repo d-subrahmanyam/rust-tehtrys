@@ -17,7 +17,7 @@ Phase 6  (optional) multiplayer seams → Appendix B  [not v1]
 
 ---
 
-## Phase 0 — Scaffolding & conventions
+## Phase 0 — Scaffolding & conventions  ✅ **done**
 
 **Goal.** Project hygiene; conventions; no behavior yet.
 
@@ -34,9 +34,10 @@ all commands green.
 
 ---
 
-## Phase 1 — Pure core engine (headless, rules-correct)
+## Phase 1 — Pure core engine (headless, rules-correct)  ✅ **done**
 
 **Goal.** Complete, deterministic `tetris` logic, no rendering. The heart.
+*(Shipped: 86 tests; fmt/clippy/test clean.)*
 
 Deliverables (modules in `core`):
 
