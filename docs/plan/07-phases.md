@@ -86,7 +86,7 @@ match §4.1; core still 100% headless-testable; no logic in `render`.
 
 ---
 
-## Phase 3 — Full presentation
+## Phase 3 — Full presentation  ✅ **done**
 
 **Goal.** Faithful look & feel per §2/§13.
 

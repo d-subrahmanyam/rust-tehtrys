@@ -9,5 +9,6 @@
 
 pub mod app;
 pub mod core;
+pub mod font;
 pub mod input;
 pub mod render;

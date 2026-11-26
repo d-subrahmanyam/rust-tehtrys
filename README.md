@@ -2,7 +2,7 @@
 
 A **Tetris** game in Rust (edition 2024), built to faithfully implement the official
 **2009 Tetris Design Guideline** mechanics. **Phase 0 + Phase 1 done**: pure, deterministic, fully-tested core engine;
-**Phase 2 (SDL2 desktop shell) in progress**. See [`docs/plan/`](docs/plan/README.md).
+**Phase 2 + Phase 3 done**: SDL2 desktop shell + full presentation. See [`docs/plan/`](docs/plan/README.md).
 
 > ## ⚠️ Disclaimer
 >
@@ -63,6 +63,7 @@ if needed. Run with `cargo run`.
 ## Status
 
 **Phase 0 + Phase 1 complete** (scaffolding + pure engine; fmt/clippy/test clean;
-`#![forbid(unsafe_code)]`). **Phase 2 in progress**: SDL2 shell + fixed-timestep +
-keymap/DAS + minimal render + pause/restart/quit. **93 tests** (77 + 16). See
+`#![forbid(unsafe_code)]`). **Phase 2 + Phase 3 complete**: SDL2 shell + fixed-timestep + keymap/DAS + full
+presentation (HUD/Next/Hold/Ghost/notifications/flashes/pause/game-over/mono);
+**95 tests** (79 + 16). **Phase 4** next. See
 [docs/plan/07-phases.md](docs/plan/07-phases.md).

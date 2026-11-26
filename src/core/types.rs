@@ -220,6 +220,11 @@ pub enum EngineEvent {
     RotationFailed,
     HardDropped {
         cells: u32,
+        /// for hard-drop trail. (§13.1.2)
+        kind: Tetrimino,
+        facing: Facing,
+        from: Point,
+        to: Point,
     },
     SoftDropped {
         cells: u32,
@@ -230,6 +235,8 @@ pub enum EngineEvent {
     LockCancelled,
     LockedDown {
         kind: Tetrimino,
+        /// locked cells (engine space). for lock-down flash. (§13.1.3)
+        cells: Vec<Point>,
     },
     /// Full rows found. (A1.2.4)
     PatternMatched {

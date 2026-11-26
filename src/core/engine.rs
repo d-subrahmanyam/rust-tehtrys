@@ -274,7 +274,15 @@ impl TetrisEngine {
             }
         }
         self.scoring.add_hard_drop(dist); // +2 per cell. (§8)
-        self.events.push(EngineEvent::HardDropped { cells: dist });
+        let kind = p.kind;
+        let facing = p.facing;
+        self.events.push(EngineEvent::HardDropped {
+            cells: dist,
+            kind,
+            facing,
+            from: p.origin,
+            to: origin,
+        });
         // hard drop locks immediately. (§5.4, A1.2.3; HARD_DROP_MS)
         self.lock_now();
     }
@@ -453,7 +461,10 @@ impl TetrisEngine {
         let last_kick = p.last_kick_index;
 
         self.phase = Phase::Lock;
-        self.events.push(EngineEvent::LockedDown { kind });
+        self.events.push(EngineEvent::LockedDown {
+            kind,
+            cells: cells.to_vec(),
+        });
 
         // T-Spin detection BEFORE clearing, on matrix with piece committed. (§9.1, A1.2.3->Pattern)
         // commit piece cells first (they don't overlap)
@@ -519,12 +530,12 @@ impl TetrisEngine {
         let level = self.level;
         let b2b_before = self.scoring.b2b;
         let (action, points) = self.scoring.register_action(lines, tspin, level);
-        let b2b = self.scoring.b2b;
-        let b2b_added = action.is_b2b_qualifying() && b2b_before; // B2B bonus applied this action
+        let b2b_added = action.is_b2b_qualifying() && b2b_before; // B2B bonus applied this action (§8.1)
         self.events.push(EngineEvent::Scored {
             action,
             points,
-            b2b,
+            // `b2b` = Back-to-Back BONUS applied this action. (for notifications §13.1.5)
+            b2b: b2b_added,
             total: self.scoring.score,
             level,
         });

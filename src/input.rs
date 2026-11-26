@@ -49,6 +49,7 @@ pub enum Key {
     F1,
     R,
     Q,
+    M,
 }
 
 /// Key bindings. (§4.1; our defaults; remappable)
