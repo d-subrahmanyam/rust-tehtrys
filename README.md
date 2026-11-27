@@ -203,8 +203,32 @@ docker run --rm -v "$PWD:/work" -w /work -e CARGO_TARGET_DIR=/tmp/ct \
     `USERPROFILE`/`APPDATA` are **not** currently checked. (No code change
     *needed* to build; persistence location differs.)
 - Pure core, `forbid(unsafe_code)`, no extra deps → `core` portable everywhere.
-- Sound/music no licensed assets; optional `korobeiniki.wav`; works without an
-  audio device (`NullAudio` fallback; `SDL_AUDIODRIVER=dummy`).
+- Sound/music no licensed assets shipped; works without an audio device
+  (`NullAudio` fallback; `SDL_AUDIODRIVER=dummy`). 
+
+#### Korobeiniki music slot — format, path, **license** 
+
+- **`MusicSlot::Korobeiniki`** plays **nothing unless a file is provided.** 
+- **Supported format: PCM16 (little-endian) WAV**, 44.1 kHz, mono preferred
+  (stereo mix-down + naive resample done; own `parse_wav`, **no `sdl2_mixer`**).
+  **MP3 is NOT supported.** 
+- **Required filename:** `korobeiniki.wav`. **Location:** `<data>/music/` =
+  `~/.local/share/tehtrys/music/korobeiniki.wav` (macOS same `$HOME`; Windows
+  `%TEMP%\tehtrys\music\` fallback; see persistence notes). **Not** `assets/audio`. 
+- **Convert** (e.g. your `assets/audio/tetris-theme-korobeiniki-rearranged.mp3`):
+  `ffmpeg -i in.mp3 -ac 1 -ar 44100 -c:a pcm_s16le korobeiniki.wav`. 
+- **Music toggle/volume:** Options → MUSIC / MUSIC VOLUME; `music_enabled`.
+  `SDL_AUDIODRIVER=dummy` safe. 
+- ⚠️ **License — verify before shipping.** `tetris-theme-korobeiniki-rearranged.mp3`
+  **cannot be confirmed as licensed.** Korobeiniki is a traditional Russian folk
+  melody, but **"rearranged" implies arrangement copyright**, and **"Tetris theme"**
+  arrangements are **licensed by The Tetris Company**; this project is
+  **non-commercial CC-BY-NC**, ships **no protected audio**, and is **not affiliated**.
+  **Using a "tetris-theme…rearranged" track may violate copyright + trademark.**
+  Only use audio **you own** or have a license for (incl. CC-BY-NC redistribution).
+  **Not legal advice.** Original protected audio is **not** reproduced. 
+- **Honestly:** technically convertible + `parse_wav` verified (PCM16 mono 44100);
+  **audible output not verified** headless; **not committed** here.
 
 ## Docs
 

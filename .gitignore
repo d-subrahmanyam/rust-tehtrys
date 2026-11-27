@@ -7,3 +7,9 @@ docs/tetris-design-guideline.md
 
 # IDE
 .idea/
+
+# user-provided audio; verify license before shipping (not committed)
+/assets/audio/*
+!/assets/audio/.gitkeep
+# converted korobeiniki music (user-provided; license-check); not committed
+korobeiniki.wav
