@@ -1,5 +1,15 @@
 # tehtrys
 
+<!-- status badges -->
+[![CI](https://github.com/d-subrahmanyam/rust-tehtrys/actions/workflows/ci.yml/badge.svg)](https://github.com/d-subrahmanyam/rust-tehtrys/actions/workflows/ci.yml)
+[![tests](https://img.shields.io/badge/tests-117%20passing-brightgreen)](https://github.com/d-subrahmanyam/rust-tehtrys)
+[![clippy](https://img.shields.io/badge/clippy-clean-brightgreen)](https://github.com/d-subrahmanyam/rust-tehtrys)
+[![rustfmt](https://img.shields.io/badge/rustfmt-clean-brightgreen)](https://github.com/d-subrahmanyam/rust-tehtrys)
+[![forbid unsafe](https://img.shields.io/badge/forbid%20unsafe-code-brightgreen)](https://github.com/d-subrahmanyam/rust-tehtrys)
+
+**Badge legend:** 🟢 **passing** (`cargo fmt` + `clippy -D warnings` + `cargo test` green; **117 tests**) · 🟡 **running / pending** (CI in progress, amber in the Actions tab; not a failure) · 🔴 **failing** · ⚪ **no status** (no runs yet). **`CI`** is a **live** GitHub Actions badge (`actions/workflows/ci.yml/badge.svg`); `tests`/`clippy`/`rustfmt` are static `shields.io` badges reflecting the current committed state. `tests` count = `cargo test` total (101 lib + 16 integration). 
+
+
 A **Tetris** game in Rust (edition 2024), built to faithfully implement the official
 **2009 Tetris Design Guideline** mechanics. **Phases 0-5 done**: pure deterministic core engine + SDL2 desktop shell + full
 presentation + variants/persistence + sound/remapping/replay. See [`docs/plan/`](docs/plan/README.md).
