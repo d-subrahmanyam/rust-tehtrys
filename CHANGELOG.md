@@ -4,7 +4,13 @@ All notable changes. **Non-commercial educational.** Project original work **CC-
 
 ## [Unreleased]
 
-- (next) 
+- (next)
+
+## [1.0.2] — Windows packaging fixes
+
+- Windows MSI adds a `tehtrys` Start Menu shortcut; `tehtrys.exe` remains installed in `C:\Program Files\tehtrys`.
+- Windows `.zip` artifacts are real ZIP files created with `Compress-Archive` and verified non-empty (no `tar` renamed `.zip`).
+- Installers remain unsigned; Windows SmartScreen/Defender warnings are expected unless code signing is added.
 
 ## [1.0.1] — installer-quality fixes
 
@@ -39,7 +45,8 @@ All notable changes. **Non-commercial educational.** Project original work **CC-
 - **Release** `.github/workflows/release.yml` tag `v*`; `bundled`; package; see `docs/RELEASE.md`. 
 - **CC BY-NC 4.0** + disclaimer; source guideline not distributed; no The-Tetris-Company protected assets; `korobeiniki.wav` third-party CC-BY-NC. 
 
-[Unreleased]: https://github.com/d-subrahmanyam/rust-tehtrys/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/d-subrahmanyam/rust-tehtrys/compare/1.0.2...HEAD
+[1.0.2]: https://github.com/d-subrahmanyam/rust-tehtrys/releases/tag/1.0.2
 [1.0.1]: https://github.com/d-subrahmanyam/rust-tehtrys/releases/tag/v1.0.1
 [1.0.0]: https://github.com/d-subrahmanyam/rust-tehtrys/releases/tag/v1.0.0
 [0.1.0]: https://github.com/d-subrahmanyam/rust-tehtrys/releases/tag/v0.1.0

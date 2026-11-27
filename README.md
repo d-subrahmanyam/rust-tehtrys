@@ -255,7 +255,7 @@ docker run --rm -v "$PWD:/work" -w /work -e CARGO_TARGET_DIR=/tmp/ct \
 
 ## Releases
 
-**Prebuilt releases on GitHub:** [`d-subrahmanyam/rust-tehtrys` Releases](https://github.com/d-subrahmanyam/rust-tehtrys/releases). **`v1.0.1`** (installer-quality fixes; supersedes `v1.0.0`/`v0.1.0`). 
+**Prebuilt releases on GitHub:** [`d-subrahmanyam/rust-tehtrys` Releases](https://github.com/d-subrahmanyam/rust-tehtrys/releases). **`1.0.2`** (Windows packaging fixes; supersedes `v1.0.1`, `v1.0.0`, `v0.1.0`).
 
 **Downloads per tag** (`v*`):
 - **Archives**: `tehtrys-X.Y.Z-x86_64-unknown-linux-gnu.tar.gz`, `tehtrys-X.Y.Z-x86_64-unknown-linux-musl.tar.gz` (**static, no glibc**), `tehtrys-X.Y.Z-aarch64-apple-darwin.tar.gz`, `tehtrys-X.Y.Z-x86_64-pc-windows-msvc.zip`; each + `LICENSE`+`README`+`CHANGELOG`+`korobeiniki.wav`+`CREDITS`. 

@@ -4,7 +4,7 @@ name: Release
 # NOT verified here. See README "Release packaging". Consider `cargo-dist` for richer packaging.
 on:
   push:
-    tags: ["v*"]            # e.g. v0.1.0, v1.0.0
+    tags: ["v*", "1.0.2"]   # e.g. v0.1.0, v1.0.0, v1.0.1, v1.0.2; plain 1.0.2 accepted
   workflow_dispatch:        # manual test run (artifacts only; tag not required)
 
 permissions:

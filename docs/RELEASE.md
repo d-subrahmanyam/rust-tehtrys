@@ -3,10 +3,10 @@
 **Not verified on GitHub** (can't run Actions here). **Not legal advice.** 
 
 ## Version & changelog
-- **Semver**; bump `Cargo.toml` `version`. Current `1.0.1`. **MSRV `rust-version="1.100"`.** 
+- **Semver**; bump `Cargo.toml` `version`. Current `1.0.2`. **MSRV `rust-version="1.100"`.**
 - `cargo check` to sync `Cargo.lock` (committed). 
 - Add `CHANGELOG.md` entry under new version. 
-- **tag `vX.Y.Z`** matching `Cargo.toml`. **first stable `v1.0.0`; `v1.0.1` installer-quality fixes.** 
+- **tag `vX.Y.Z` or plain `X.Y.Z`** matching `Cargo.toml`. **first stable `v1.0.0`; `v1.0.1` installer-quality fixes; `1.0.2` Windows packaging fixes.**
 
 ## Gate (CI + local)
 ```sh
@@ -29,7 +29,7 @@ git push origin vX.Y.Z              # triggers .github/workflows/release.yml
 **Hit invalid token?** `unset GITHUB_TOKEN` / `env -u GITHUB_TOKEN`, or `gh auth refresh -s workflow`, `gh auth setup-git`. 
 
 ## `release.yml`
-- `on push tag v*` + `workflow_dispatch`; `contents: write`. 
+- `on push tag v*` + plain `1.0.2` + `workflow_dispatch`; `contents: write`.
 - matrix linux/macos/windows; `rm .cargo/config.toml`; `lukka/get-cmake`. 
 - `cargo fmt --check`; `cargo test --locked --features bundled`; `cargo build --release --locked --target … --features bundled`. 
 - package `tehtrys-<ver>-<target>.{tar.gz,zip}` + `LICENSE`+`README`+`CHANGELOG`+`korobeiniki.wav`+`CREDITS`; `upload-artifact`+`gh-release`. 
