@@ -87,7 +87,8 @@ jobs:
           if [ "${{ matrix.pkg }}" = "tar.gz" ]; then
             tar -czf "${name}.tar.gz" -C dist .
           else
-            ( cd dist && zip -9 "../${name}.zip" * )
+            # `zip` not on windows-latest; `tar -a` auto-compress (bsdtar Windows / GNU Linux). 
+            tar -a -cf "${name}.zip" -C dist .
           fi
           ls -la
 
