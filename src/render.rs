@@ -586,7 +586,7 @@ fn clear_bg(canvas: &mut Canvas<Window>) {
 pub fn draw_title(canvas: &mut Canvas<Window>, _mono: bool) {
     clear_bg(canvas);
     let (w, h) = canvas.window().size();
-    let title = "TETHRYS";
+    let title = "tehtrys";
     draw_text(
         canvas,
         (w as i32 - text_width(title, 5)) / 2,
