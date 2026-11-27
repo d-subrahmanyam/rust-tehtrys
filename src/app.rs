@@ -608,7 +608,8 @@ impl App {
                     self.paused = !self.paused;
                     if self.paused {
                         self.das.clear();
-                        self.game.apply(GameCommand::SoftDrop(false)); // not recorded
+                        self.game.apply(GameCommand::SoftDrop(false));
+                        self.replay.record(GameCommand::SoftDrop(false));
                         self.sound.play(SoundCue::Pause);
                     } else {
                         self.sound.play(SoundCue::Resume);
@@ -938,7 +939,8 @@ pub fn run() -> Result<(), String> {
                 {
                     app.paused = true;
                     app.das.clear();
-                    app.game.apply(GameCommand::SoftDrop(false)); // not recorded
+                    app.game.apply(GameCommand::SoftDrop(false));
+                    app.replay.record(GameCommand::SoftDrop(false));
                 }
                 _ => {}
             }
