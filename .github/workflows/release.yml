@@ -189,14 +189,22 @@ jobs:
           set -euo pipefail
           cargo build --release --locked --target x86_64-pc-windows-msvc --features bundled
           # `cargo-wix` cannot forward cargo `--features`; build above with `bundled`, then use `--no-build`.
-          # `--nocapture` exposes any hidden cargo/candle/light output. `RUSTFLAGS=-Dwarnings` does not affect no-build.
-          cargo wix --target x86_64-pc-windows-msvc --no-build --nocapture
+          # `--nocapture` exposes hidden cargo/candle/light output. `RUSTFLAGS=-Dwarnings` does not affect no-build.
+          mkdir -p target/wix
+          # explicit `--output` avoids `target/wix` vs `target/<triple>/wix` ambiguity.
+          cargo wix --target x86_64-pc-windows-msvc --no-build --nocapture --output target/wix
+          find target/wix -maxdepth 1 -name '*.msi' -print
       - uses: actions/upload-artifact@v4
-        with: { name: windows-msi, path: target/wix/*.msi }
+        with:
+          name: windows-msi
+          path: target/wix/*.msi
+          if-no-files-found: error
       - name: GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
-        with: { files: target/wix/*.msi }
+        with:
+          files: target/wix/*.msi
+          fail_on_unmatched_files: true
 
   # ---- Ubuntu .dpkg (`cargo-deb`).  [flatpak alternative noted in docs.] ----
   deb:
