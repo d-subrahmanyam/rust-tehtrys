@@ -1,0 +1,35 @@
+# cargo-deny config. `cargo deny check`. (CI extra; not run here.)
+# https://embarkstudios.github.io/cargo-deny/
+
+[advisories]
+version = 2
+ignore = []                 # add RUSTSEC-* ids to allowlist after review
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+highlight = "all"
+
+[licenses]
+version = 2
+# project itself is CC-BY-NC-4.0; check DEPENDENCY licenses here.
+# sdl2 -> zlib; add others as needed. honest: verify on first `cargo deny check`.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Zlib",
+    "CC0-1.0",
+    "Unicode-3.0",
+    "Unicode-DFS-2016",
+    "0BSD",
+    "MPL-2.0",
+]
+confidence-threshold = 0.8
+
+[sources]
+unknown-registry = "warn"
+unknown-git = "deny"

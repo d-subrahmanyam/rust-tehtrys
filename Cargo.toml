@@ -2,6 +2,9 @@
 name = "tehtrys"
 version = "0.1.0"
 edition = "2024"
+rust-version = "1.100"            # MSRV; edition 2024. CI pins/checks.
+license = "CC-BY-NC-4.0"          # non-commercial educational; see LICENSE. (not legal advice)
+description = "Faithful 2009 Tetris Design Guideline clone in Rust + SDL2 (non-commercial educational)"
 
 [lib]
 name = "tehtrys"
@@ -14,4 +17,24 @@ path = "src/main.rs"
 [dependencies]
 # SDL2 is used by the presentation layer (Phase 2+); `core` has no external deps.
 sdl2 = "0.39.0"
+
+# ---------- features ----------
+# `core` has no external deps regardless. default = system SDL2 (see README per-OS).
+[features]
+default = []
+# vendor + statically link SDL2 (no system SDL2 needed at runtime); requires cmake + C compiler.
+# `cargo build --release --features bundled`. NOT default; NOT verified here.
+bundled = ["sdl2/bundled", "sdl2/static-link"]
+
+# ---------- release profile ----------
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = "symbols"          # strip debuginfo in shipped binaries (not unsafe; core still forbids unsafe)
+# NOTE: `panic = "abort"` intentionally NOT set: `cargo test --release` needs unwind.
+
+# keep dev/test fast
+[profile.dev]
+opt-level = 0
 

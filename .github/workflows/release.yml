@@ -1,0 +1,104 @@
+name: Release
+
+# On version tag: build native binaries per OS, package, attach to GitHub Release.
+# NOT verified here. See README "Release packaging". Consider `cargo-dist` for richer packaging.
+on:
+  push:
+    tags: ["v*"]            # e.g. v0.1.0, v1.0.0
+  workflow_dispatch:        # manual test run (artifacts only; tag not required)
+
+permissions:
+  contents: write            # create GitHub Release + upload assets
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Dwarnings
+
+jobs:
+  release:
+    name: release (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            pkg: tar.gz
+            bin: tehtrys
+          - os: macos-latest
+            target: aarch64-apple-darwin     # Apple Silicon; add x86_64-apple-darwin for Intel
+            pkg: tar.gz
+            bin: tehtrys
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            pkg: zip
+            bin: tehtrys.exe
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: release-${{ matrix.target }}
+
+      - name: remove local cargo env
+        shell: bash
+        run: rm -f .cargo/config.toml
+
+      # Self-contained build: vendor + statically link SDL2 (`--features bundled`).
+      # Needs cmake + C compiler. If you prefer system SDL2, drop `--features bundled`
+      # and install SDL2 per OS (see ci.yml / README) + ship the SDL2 shared lib.
+      - name: cmake (for sdl2 bundled)
+        uses: lukka/get-cmake@latest
+
+      - name: fmt check
+        shell: bash
+        run: cargo fmt --check
+      # full fmt/clippy/test gating lives in ci.yml; release only packages.
+      # `--features bundled` supplies SDL2 itself, so no system SDL2 needed on the runner. 
+
+      - name: build release
+        shell: bash
+        run: cargo build --release --locked --target ${{ matrix.target }} --features bundled
+
+      - name: package
+        shell: bash
+        run: |
+          set -euo pipefail
+          ver="${GITHUB_REF_NAME#v}"; [ -n "$ver" ] || ver="0.0.0"
+          name="tehtrys-${ver}-${{ matrix.target }}"
+          bin="target/${{ matrix.target }}/release/${{ matrix.bin }}"
+          mkdir -p dist
+          cp "$bin" dist/ 2>/dev/null || cp "$bin" dist/
+          cp LICENSE README.md dist/
+          if [ "${{ matrix.pkg }}" = "tar.gz" ]; then
+            tar -czf "${name}.tar.gz" -C dist .
+          else
+            ( cd dist && zip -9 "../${name}.zip" * )
+          fi
+          ls -la
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: tehtrys-*.tar.gz
+      - uses: actions/upload-artifact@v4
+        if: matrix.pkg == 'zip'
+        with:
+          name: ${{ matrix.target }}-zip
+          path: tehtrys-*.zip
+
+      - name: GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            tehtrys-*.tar.gz
+            tehtrys-*.zip
+          generate_release_notes: true

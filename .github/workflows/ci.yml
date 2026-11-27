@@ -96,3 +96,36 @@ jobs:
       - run: cargo build
       - name: headless run (timeout-kill counts as success)
         run: timeout 3 env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy ./target/debug/tehtrys || [ $? -eq 124 ]
+
+  # ---------- CI extra: security advisories (RUSTSEC) ----------
+  audit:
+    name: cargo audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: install cargo-audit
+        run: cargo install cargo-audit --locked
+      - run: cargo audit
+
+  # ---------- CI extra: licenses + bans + sources + advisories ----------
+  deny:
+    name: cargo deny
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: install cargo-deny
+        run: cargo install cargo-deny --locked
+      - run: cargo deny check    # uses committed deny.toml
+
+  # ---------- CI extra: kiri (Docker-compatible) container build ----------
+  kiri:
+    name: kiri container
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # `kiri` is Docker-compatible; on GitHub prefer `docker`. kiri not preinstalled on runners.
+      # `kiri build -t tehtrys-ci .` locally. Here use docker for parity with `docker` job.
+      - name: kiri-compatible build via docker
+        run: docker build -t tehtrys-ci-kiri .

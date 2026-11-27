@@ -134,6 +134,19 @@ SDL2 — **not enabled** here.) `cargo test` needs SDL2 linkable; `cargo test`
 itself doesn't open a window; `cargo run` needs a display. **Not verified on
 Windows in this env.**
 
+### Release packaging
+
+- **Local release:** `cargo build --release --locked`. MSRV `rust-version = 1.100`; `edition 2024`. Release profile: `opt-level=3`, `lto="thin"`, `codegen-units=1`, `strip="symbols"`; `panic` **not** `abort` (so `cargo test --release` works). 
+- **Self-contained SDL2:** `cargo build --release --locked --features bundled` → `sdl2` **`bundled` + `static-link`** vendors/statically-links SDL2 (no system SDL2 at runtime); **needs cmake + C compiler**. **Not default; not verified here.** Default remains system SDL2 per-OS. 
+- **CI gate** unchanged. 
+- **GitHub Release workflow:** [`.github/workflows/release.yml`](.github/workflows/release.yml) on `git tag vX.Y.Z` (+ `workflow_dispatch`); matrix `x86_64-unknown-linux-gnu`, `aarch64-apple-darwin`, `x86_64-pc-windows-msvc`; `--features bundled`; `cargo fmt --check`; packages `tehtrys-<ver>-<target>.{tar.gz,zip}` + `LICENSE`+`README`; `actions/upload-artifact` + `softprops/action-gh-release`; `permissions: contents: write`. **Not run here.** 
+- **Richer packaging:** **`cargo-dist`** (`cargo dist init`, generates release workflow + installers `.dmg`/`.msi`/`.tar.gz`/shell installers); `cross` for cross-compile; Docker image (`Dockerfile`); `cargo wix` (MSI); `appimagetool`. **Not shipped/verified.** 
+- **No protected art/audio** shipped; optional `korobeiniki.wav` user-supplied. **Non-commercial CC BY-NC 4.0.** 
+
+### CI extras
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) jobs: `test` matrix, `docker`, `headless-smoke`, plus **`audit`** (`cargo-audit`, RUSTSEC), **`deny`** (`cargo-deny check`; [`deny.toml`](deny.toml): advisories, licenses, bans, sources; project `license=CC-BY-NC-4.0`, checks **dependency** licenses incl. `sdl2`→zlib), **`kiri`** (Docker-compatible; `docker` on runners), **`release`** ([`release.yml`](.github/workflows/release.yml)). `RUSTFLAGS=-Dwarnings`. **Not verified on GitHub.** 
+
 ### Cross-platform testing with containers (Docker / Kiri)
 
 **Short answer:** **yes** — and I verified it here. A reproducible `Dockerfile`
