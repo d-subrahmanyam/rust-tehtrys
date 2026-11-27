@@ -160,10 +160,12 @@ docker run --rm -v "$PWD:/work" -w /work -e CARGO_TARGET_DIR=/tmp/ct \
   prebuilt Docker images) — but that **only type-checks/links**, it can't *run*
   those binaries. Real macOS/Windows verification needs **native runners** or a
   **CI matrix**. 
-- **Recommended CI matrix** (no `.github/workflows` shipped yet):
+- **CI matrix shipped:** [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
   `ubuntu-latest` + `apt libsdl2-dev`, `macos-latest` + `brew sdl2`,
-  `windows-latest` + SDL2 VC + `LIB`/`PATH`, each `cargo fmt --check`,
-  `cargo clippy --all-targets -- -D warnings`, `cargo test`. 
+  `windows-latest` + SDL2 VC (`LIB`/`PATH` + `SDL2.dll`), removes committed
+  linuxbrew `[env]`, each `cargo fmt --check`, `cargo clippy --all-targets --
+  -D warnings`, `cargo test --locked`; plus `docker` build job + headless
+  smoke. **Not run here; verify on first push.** 
 - `cargo test` needs SDL2 linkable (no display); `cargo run` needs a display;
   headless smoke `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy`. 
 

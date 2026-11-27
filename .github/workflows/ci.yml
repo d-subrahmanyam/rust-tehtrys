@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUSTFLAGS: -Dwarnings
+
+jobs:
+  # ---------- native cross-platform build + test matrix ----------
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust toolchain (1.100+, edition 2024)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - uses: Swatinem/rust-cache@v2
+
+      # remove machine-specific linuxbrew [env] committed for local dev. 
+      - name: remove local cargo env
+        shell: bash
+        run: rm -f .cargo/config.toml
+
+      # ---- SDL2 per OS (NOT sdl2_mixer / sdl2_ttf) ----
+      - name: Install SDL2 (Linux)
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libsdl2-dev pkg-config
+
+      - name: Install SDL2 (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install sdl2
+          echo "LIBRARY_PATH=$(brew --prefix sdl2)/lib:${LIBRARY_PATH}" >> "$GITHUB_ENV"
+          echo "DYLD_FALLBACK_LIBRARY_PATH=$(brew --prefix sdl2)/lib:${DYLD_FALLBACK_LIBRARY_PATH}" >> "$GITHUB_ENV"
+
+      - name: Install SDL2 (Windows, prebuilt VC)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $ver = "2.30.9"
+          $url = "https://github.com/libsdl-org/SDL/releases/download/release-$ver/SDL2-devel-$ver-VC.zip"
+          Invoke-WebRequest -Uri $url -OutFile sdl2.zip
+          Expand-Archive sdl2.zip -DestinationPath C:\sdl2
+          $lib = "C:\sdl2\SDL2-$ver\lib\x64"
+          "$lib" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          "LIB=$lib;$env:LIB" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          New-Item -ItemType Directory -Force target/debug target/release | Out-Null
+          Copy-Item "$lib\SDL2.dll" target/debug/SDL2.dll -Force
+          Copy-Item "$lib\SDL2.dll" target/release/SDL2.dll -Force
+
+      - name: fmt
+        run: cargo fmt --check
+
+      - name: clippy
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: test
+        run: cargo test --locked
+        shell: bash
+
+  # ---------- reproducible container build + test ----------
+  docker:
+    name: docker (Linux container)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build + test in container
+        # committed Dockerfile removes linuxbrew env + installs libsdl2-dev + cargo test
+        run: docker build -t tehtrys-ci .
+
+  # ---------- headless smoke ----------
+  headless-smoke:
+    name: headless smoke
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - run: sudo apt-get update && sudo apt-get install -y libsdl2-dev
+      - run: rm -f .cargo/config.toml
+      - run: cargo build
+      - name: headless run (timeout-kill counts as success)
+        run: timeout 3 env SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy ./target/debug/tehtrys || [ $? -eq 124 ]
