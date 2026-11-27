@@ -155,7 +155,7 @@ docker run --rm -v "$PWD:/work" -w /work -e CARGO_TARGET_DIR=/tmp/ct \
 - **Containers test LINUX only.** Docker/Kiri run Linux VMs; they **cannot run
   macOS or Windows binaries**. On a Mac/Windows host they still test a *Linux*
   target. 
-- **macOS/Windows**: cross-*compiling* can be checked with **`cargo-cross`**
+- **macOS/Windows**: cross-*compiling* can be checked with **`cross`** (cargo-cross)
   (`cross build --target x86_64-pc-windows-msvc` / `aarch64-apple-darwin`, etc.;
   prebuilt Docker images) — but that **only type-checks/links**, it can't *run*
   those binaries. Real macOS/Windows verification needs **native runners** or a
