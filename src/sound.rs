@@ -644,17 +644,48 @@ impl Audio for SdlAudio {
         let Some(fname) = slot.asset_filename() else {
             return;
         };
-        // search order: user `<data>/music` override, then bundled `assets/audio`, then repo assets.
+        // search order: user `<data>/music` override, then bundled assets (cwd, exe-relative,
+        // .app Resources, `CARGO_MANIFEST_DIR`), then system install dirs.
         // `korobeiniki.wav` shipped converted PCM16 (classicals.de CC-BY-NC; see assets/audio/CREDITS;
         // original MP3 NOT used). only PCM16 WAV honored (own parser; no sdl2_mixer; MP3 unsupported).
-        let candidates = [
+        let mut candidates: Vec<std::path::PathBuf> = vec![
             self.music_dir.join(fname),
             std::path::PathBuf::from("assets").join("audio").join(fname),
+            std::path::PathBuf::from(fname),
             std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
                 .join("assets")
                 .join("audio")
                 .join(fname),
         ];
+        if let Ok(exe) = std::env::current_exe()
+            && let Some(dir) = exe.parent()
+        {
+            {
+                candidates.push(dir.join("assets").join("audio").join(fname)); // app/.msi alongside exe
+                candidates.push(dir.join(fname)); // .msi `korobeiniki.wav` in INSTALLFOLDER
+                candidates.push(dir.join("music").join(fname));
+                candidates.push(
+                    dir.join("..")
+                        .join("Resources")
+                        .join("assets")
+                        .join("audio")
+                        .join(fname),
+                ); // .app Contents/Resources
+                candidates.push(dir.join("..").join("Resources").join(fname));
+                candidates.push(
+                    dir.join("..")
+                        .join("share")
+                        .join("tehtrys")
+                        .join("music")
+                        .join(fname),
+                );
+            }
+        }
+        // system install locations (.dpkg; flatpak; brew).
+        candidates.push(std::path::PathBuf::from("/usr/share/tehtrys/music").join(fname));
+        candidates.push(std::path::PathBuf::from("/usr/share/tehtrys").join(fname));
+        candidates.push(std::path::PathBuf::from("/usr/local/share/tehtrys/music").join(fname));
+        candidates.push(std::path::PathBuf::from("/app/share/tehtrys/music").join(fname)); // flatpak
         let Some(bytes) = candidates.iter().find_map(|p| std::fs::read(p).ok()) else {
             return;
         };

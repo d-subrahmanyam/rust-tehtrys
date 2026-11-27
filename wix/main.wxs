@@ -14,7 +14,11 @@
   <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLFOLDER" Name="tehtrys" />
+        <Directory Id="INSTALLFOLDER" Name="tehtrys">
+          <Directory Id="KOROBEINIKI_DIR" Name="assets">
+            <Directory Id="KOROBEINIKI_AUDIO" Name="audio" />
+          </Directory>
+        </Directory>
       </Directory>
     </Directory>
   </Fragment>
@@ -23,8 +27,11 @@
       <Component Id="TehtrysExe" Guid="*">
         <File Id="tehtrys.exe" Source="$(var.CargoTargetBinDir)\tehtrys.exe" KeyPath="yes" />
       </Component>
-      <Component Id="KorobeinikiWav" Guid="*">
+      <Component Id="KorobeinikiWav" Guid="*" Directory="KOROBEINIKI_AUDIO">
         <File Id="korobeiniki.wav" Source="assets\audio\korobeiniki.wav" KeyPath="yes" />
+      </Component>
+      <Component Id="KorobeinikiCredits" Guid="*" Directory="KOROBEINIKI_AUDIO">
+        <File Id="CREDITS.md" Source="assets\audio\CREDITS.md" KeyPath="yes" />
       </Component>
       <Component Id="Credits" Guid="*">
         <File Id="CREDITS.md" Source="assets\audio\CREDITS.md" KeyPath="yes" />
