@@ -1,7 +1,7 @@
 //! Sound. (§13.2 sound effects; §13.3 music; flows/12 render->audio seam)
 //!
 //! `core` stays pure; audio is presentation. We implement **procedural synthesis**
-//! original sound effects = procedural synthesis; `Korobeiniki` music slot ships separate third-party PCM16 `korobeiniki.wav` (Pixabay; see assets/audio/CREDITS; can't verify; not The Tetris Company); no external audio lib; SDL2 built-in audio.
+//! original sound effects = procedural synthesis; `Korobeiniki` music slot ships separate third-party PCM16 `korobeiniki.wav` (classicals.de; CC-BY-NC-4.0; see assets/audio/CREDITS; can't verify; not The Tetris Company); no external audio lib; SDL2 built-in audio.
 //! (The Phase-5 plan named `sdl2_mixer`, but that system lib isn't available; this
 //! satisfies the same `Audio`-trait requirement with zero extra dependency.)
 //!
@@ -46,11 +46,12 @@ pub enum SoundCue {
 
 /// BGM slot. **No licensed asset shipped.** (§13.3) `Korobeiniki` is a *slot*:
 /// BGM slot. `Korobeiniki` ships a converted PCM16 `korobeiniki.wav`
-/// (`assets/audio/`), **third-party** source Pixabay
-/// `https://pixabay.com/music/search/korobeiniki/`; page labels **"no copyright
-/// music"** + **royalty-free**; **Pixabay Content License**, **separate**; not
-/// The Tetris Company; **not** project CC-BY-NC; **can't verify**; **not legal
-/// advice**; `<data>/music/` override; PCM16 WAV only; otherwise silent.
+/// (`assets/audio/`), **third-party** source `https://www.classicals.de/tetris-theme`
+/// **"Tetris Theme - Korobeiniki - Arranged for Music Box"**; **recorded,
+/// produced, published by Gregor Quendel**; **arrangement based on notes by
+/// Maru Piano**; **CC BY-NC 4.0** (non-commercial; attribution + link + changes);
+/// **separate**; not The Tetris Company; **not** original; **can't verify**;
+/// **not legal advice**; `<data>/music/` override; PCM16 WAV only; otherwise silent.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum MusicSlot {
     /// Korobeiniki music slot. (§13.3; converted PCM16 `korobeiniki.wav`; see assets/audio/CREDITS; separate license)
@@ -644,8 +645,8 @@ impl Audio for SdlAudio {
             return;
         };
         // search order: user `<data>/music` override, then bundled `assets/audio`, then repo assets.
-        // `korobeiniki.wav` shipped converted PCM16 (from Pixabay; see assets/audio/CREDITS; original
-        // MP3 NOT used). only PCM16 WAV honored (own parser; no sdl2_mixer; MP3 unsupported).
+        // `korobeiniki.wav` shipped converted PCM16 (classicals.de CC-BY-NC; see assets/audio/CREDITS;
+        // original MP3 NOT used). only PCM16 WAV honored (own parser; no sdl2_mixer; MP3 unsupported).
         let candidates = [
             self.music_dir.join(fname),
             std::path::PathBuf::from("assets").join("audio").join(fname),

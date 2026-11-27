@@ -3,38 +3,44 @@
 ## `korobeiniki.wav` (Korobeiniki / Tetris-theme music)
 
 - **What:** converted to **PCM16 little-endian WAV, 44.1 kHz, mono** (no metadata),
-  used by `MusicSlot::Korobeiniki` for background music. Original **MP3** source
-  **not** shipped in this form. 
-- **Original asset:** `tetris-theme-korobeiniki-rearranged.mp3` (256 kbps, 44.1 kHz,
-  stereo). **"rearranged"**. 
-- **Source:** **Pixabay** — `https://pixabay.com/music/search/korobeiniki/`. The
-  download page states **"3+ Korobeiniki no copyright music"** / **"no copyright"**
-  and **"Download korobeiniki royalty-free audio tracks and instrumentals for your
-  next project."** 
-- **License:** **Pixabay Content License** (`https://pixabay.com/service/license-summary/`;
-  full license in **Pixabay Terms of Service**; summary not legally binding). Under
-  it: free use, **no attribution required**, modify/adapt; **not** sell/distribute
-  **standalone**; recognizable **trademarks/logos/brands** not for **commercial**
-  goods; not immoral/illegal; not **misleading**; can't use as trade-mark; **"certain
-  Content may be subject to additional intellectual property rights… responsibility
-  to check whether you require consent of a third party or a license."** 
-- **Attribution requested here:** *Korobeiniki — sourced from Pixabay*
-  (`https://pixabay.com/music/search/korobeiniki/`); **converted MP3→PCM16 WAV**;
-  **not** original; **not** The Tetris Company. 
-- **Third-party, separate license:** this asset is **NOT** original `tehtrys` work
-  and **NOT** covered by the project **CC-BY-NC-4.0** license; it keeps its own
-  **Pixabay** terms. Project license covers original code; grants **no** rights to
-  third-party trademarks/source materials. 
-- **"Tetris"®** is a registered trademark; project `tehtrys`, **not affiliated /
-  endorsed / licensed** by The Tetris Company. Not using "Tetris" as a mark; not
-  reproducing protected Tetris art/audio. **"Korobeiniki"** melody is traditional,
-  but **"rearranged"** implies arrangement copyright; **"tetris-theme…"** wording +
-  any underlying rights **can't be verified** here. 
-- **Non-commercial:** this project is **educational, non-commercial**. Pixabay
-  prohibits commercial use of content with recognizable trademarks in relation to
-  goods/services; not commercial here. 
-- **Honest:** can't verify specific asset + full Terms + third-party + The Tetris
-  Company; can't verify **audible** output headless. **Not legal advice**; you are
-  responsible for checking before shipping. 
+  used by `MusicSlot::Korobeiniki`. Original **MP3** not shipped in this form. 
+- **Original asset:** **"Tetris Theme - Korobeiniki - Arranged for Music Box"**
+  (classicals.de `Classicals.de-Tetris_Theme.mp3` (original download `Classicalsde-Tetris-Theme-Korobeiniki-Rearranged-Arranged-for-Music-Box-xcmx.mp3`);
+  MP3 160kbps 44.1kHz stereo, ~3:28). **"Korobeiniki Rearranged - Arranged for
+  Music Box."** **not original `tehtrys`.** 
+- **Source / link (required attribution):** **`https://www.classicals.de/tetris-theme`**
+  (site `https://www.classicals.de`; artist `https://www.gregorquendel.com`). 
+- **License terms (as stated by classicals.de + user):** **"License terms
+  (Standard - Non-Commercial)" → `CC BY-NC 4.0` Creative Commons
+  Attribution-NonCommercial 4.0 International**
+  (`https://creativecommons.org/licenses/by-nc/4.0/`; full legal code
+  `https://creativecommons.org/licenses/by-nc/4.0/legalcode`). 
+  - **You are free to:** **Share** (copy/redistribute); **Adapt** (remix/transform/build upon). 
+  - **Under the following terms:** **Attribution** — appropriate credit + **link to
+    the website** + **indicate if changes were made**; **NonCommercial** — no commercial use. 
+  - classicals.de also has **Commercial Licenses** (`https://www.classicals.de/music-licenses`). 
+- **Attribution string:**
+  > **“Tetris Theme - Korobeiniki - Arranged for Music Box”** — Korobeiniki music
+  > **recorded, produced, published by Gregor Quendel**; **arrangement based on
+  > notes by Maru Piano**. Source `https://www.classicals.de/tetris-theme`
+  > (website `https://www.classicals.de`; `https://www.gregorquendel.com`).
+  > Licensed **CC BY-NC 4.0**. **Changes made:** converted **MP3 → PCM16 mono
+  > 44.1 kHz WAV**. **Non-commercial.** **Not endorsed**; **not affiliated**.
+- **Recorded, produced, published by:** **Gregor Quendel**. 
+- **Arrangement based on notes by:** **Maru Piano**. 
+- **Changes made:** MP3→PCM16 WAV; mono; resampled 44.1k; **not original protected audio**. 
+- **Same license as project:** asset **CC BY-NC 4.0** + **project original work
+  CC BY-NC 4.0**; but **third-party, NOT original `tehtrys`, NOT d-subrahmanyam;
+  NOT covered by `tehtrys`' own CC-BY-NC grant; keeps its own terms**; project
+  grants **no** third-party trademark rights. 
+- **"Tetris"®** registered trademark; **not affiliated / endorsed / licensed** by
+  The Tetris Company; **not original The-Tetris-Company audio**; can't claim; CC
+  license doesn't grant trademark. **Korobeiniki** traditional + arrangement;
+  **"tetris-theme…"** wording + third-party can't be fully verified. 
+- **Non-commercial** project. 
+- ⚠️ **Embedded ID3 note:** MP3 `comment-eng` says `https://www.classicals.de`,
+  `https://www.gregorquendel.com`, **`© 2024 Gregor Quendel. All rights
+  reserved.`**, **while stated license = CC BY-NC 4.0.** Conflicting signal;
+  user confirms CC-BY-NC; can't verify; **not legal advice.** 
 
 *(Own **sound effects** are original procedural synthesis, no asset.)*

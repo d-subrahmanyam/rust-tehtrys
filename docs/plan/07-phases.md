@@ -131,9 +131,9 @@ guideline goal examples verified (§6 L4→5=40 etc.); tests green.
   SDL2's *built-in* audio (no extra dependency; **sound effects original synthesis**; separate `Korobeiniki` music below). Pure
   `SoundCue` mapping `core` events→sound (tested); `NullAudio` fallback (headless);
   `SDL_AUDIODRIVER=dummy` safe. (`src/sound.rs`.)
-- **BGM**: **`MusicSlot::Korobeiniki`** slot; **`korobeiniki.wav` shipped converted PCM16 (third-party Pixabay; separate license; can't verify; not The Tetris Company; `<data>/music` override; no original protected audio)**;
+- **BGM**: **`MusicSlot::Korobeiniki`** slot; **`korobeiniki.wav` shipped converted PCM16 (third-party classicals.de CC-BY-NC; separate license; can't verify; not The Tetris Company; `<data>/music` override; no original protected audio)**;
   toggle/volume; shipped converted PCM16 `assets/audio/korobeiniki.wav`; `<data>/music/`
-  override; falls back to silent if neither. **[third-party Pixabay asset; separate; can't verify; not The Tetris Company; original protected audio NOT shipped]** (§13.3).
+  override; falls back to silent if neither. **[third-party classicals.de CC-BY-NC asset; separate; can't verify; not The Tetris Company; original protected audio NOT shipped]** (§13.3).
 - **Settings** persistence (keys, options, volumes); **remapping UI** (§4.1
   `RemapTarget`, capture-a-key, clear/reset; persisted `key.*`); `Settings`
   roundtrip + robust parse; **atomic writes**. 

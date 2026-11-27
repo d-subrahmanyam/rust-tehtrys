@@ -16,3 +16,6 @@ docs/tetris-design-guideline.md
 !/assets/audio/CREDITS.md
 # user-provided originals / converted copies (local); not committed
 /assets/audio/tetris-theme-korobeiniki-rearranged.mp3
+
+# classicals.de original mp3 (local); ship converted korobeiniki.wav
+/assets/audio/Classicals.de-Tetris_Theme.mp3

@@ -993,7 +993,7 @@ pub fn draw_help(canvas: &mut Canvas<Window>, _mono: bool) {
         &[
             "tehtrys - original; non-commercial CC BY-NC 4.0",
             "not affiliated with The Tetris Company; no The-Tetris-Company protected art/audio",
-            "SFX original synth; Korobeiniki wav separate Pixabay license (see CREDITS); not verified",
+            "SFX original synth; Korobeiniki wav CC-BY-NC (classicals.de; see CREDITS); not verified",
         ],
     );
     draw_text(canvas, 36, y + 4, "ESC/ENTER = back", SCREEN_DIM, 1);

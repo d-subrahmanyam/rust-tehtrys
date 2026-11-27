@@ -27,6 +27,10 @@ allow = [
     "Unicode-DFS-2016",
     "0BSD",
     "MPL-2.0",
+    # project itself + separate third-party music asset (see assets/audio/CREDITS.md; not a crate)
+    "CC-BY-NC-4.0",
+    "CC-BY-NC-3.0",
+    "CC-BY-4.0",
 ]
 confidence-threshold = 0.8
 
