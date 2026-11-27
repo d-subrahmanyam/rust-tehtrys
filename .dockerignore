@@ -1,0 +1,8 @@
+/target
+.git
+.idea
+# local-only reference materials (not distributed)
+docs/2009 Tetris Design Guideline.pdf
+docs/tetris-design-guideline.md
+# artifacts not needed in image
+assets

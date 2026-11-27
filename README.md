@@ -124,6 +124,49 @@ SDL2 — **not enabled** here.) `cargo test` needs SDL2 linkable; `cargo test`
 itself doesn't open a window; `cargo run` needs a display. **Not verified on
 Windows in this env.**
 
+### Cross-platform testing with containers (Docker / Kiri)
+
+**Short answer:** **yes** — and I verified it here. A reproducible `Dockerfile`
+is committed; `docker build` **and** `kiri build` both succeed, `cargo test`
+inside is **117/117**. 
+
+**`kiri` is a Docker-compatible container runtime/CLI** ("docker's commands, on
+Kiri": `kiri run/build/compose`, `kiri build-with`, `kiri k8s`, …). Everything
+below works with **`docker`** or **`kiri`** (or `podman`); `kiri` mirrors
+`docker`'s interface. 
+
+```sh
+docker build -t tehtrys .      # or: kiri build -t tehtrys .
+docker run --rm -it tehtrys    # needs a display + SDL2; headless test image works
+```
+
+```sh
+# without the Dockerfile, e.g. quick Linux check on rust:slim:
+docker run --rm -v "$PWD:/work" -w /work -e CARGO_TARGET_DIR=/tmp/ct \
+  -e LIBRARY_PATH=/usr/lib/x86_64-linux-gnu -e LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu \
+  rust:slim bash -c "apt-get update -qq && apt-get install -y -qq libsdl2-dev && cargo test"
+```
+
+**Honest scope — what containers can and can't verify:**
+- **Linux builds + tests**: fully verified. `Dockerfile` uses `rust:slim` +
+  `libsdl2-dev`, **removes the committed linuxbrew `[env]`**, `cargo build` +
+  `cargo test`. `.dockerignore` excludes `/target`, `.git`, local-only reference
+  docs, `assets`.
+- **Containers test LINUX only.** Docker/Kiri run Linux VMs; they **cannot run
+  macOS or Windows binaries**. On a Mac/Windows host they still test a *Linux*
+  target. 
+- **macOS/Windows**: cross-*compiling* can be checked with **`cargo-cross`**
+  (`cross build --target x86_64-pc-windows-msvc` / `aarch64-apple-darwin`, etc.;
+  prebuilt Docker images) — but that **only type-checks/links**, it can't *run*
+  those binaries. Real macOS/Windows verification needs **native runners** or a
+  **CI matrix**. 
+- **Recommended CI matrix** (no `.github/workflows` shipped yet):
+  `ubuntu-latest` + `apt libsdl2-dev`, `macos-latest` + `brew sdl2`,
+  `windows-latest` + SDL2 VC + `LIB`/`PATH`, each `cargo fmt --check`,
+  `cargo clippy --all-targets -- -D warnings`, `cargo test`. 
+- `cargo test` needs SDL2 linkable (no display); `cargo run` needs a display;
+  headless smoke `SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy`. 
+
 ### Portability notes
 
 - `.cargo/config.toml` `[env]` is **machine-specific**; committed only for this
