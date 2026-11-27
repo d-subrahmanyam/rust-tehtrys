@@ -189,7 +189,8 @@ fn draw_glyph(canvas: &mut Canvas<Window>, x: i32, y: i32, ch: char, color: Colo
     canvas.set_draw_color(color);
     for (row, bits) in g.iter().enumerate() {
         for col in 0..font::GLYPH_W {
-            if bits & (1 << (7 - col)) != 0 {
+            if bits & (1 << col) != 0 {
+                // font data is LSB-left (bit0 = leftmost)
                 let _ = canvas.fill_rect(Rect::new(
                     x + col * scale,
                     y + row as i32 * scale,

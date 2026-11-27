@@ -1,6 +1,6 @@
 //! Minimal embedded **8x8 bitmap font** for UI text. No external crate/font file.
 //! (Phase 3 text rendering without `sdl2_ttf`.) ASCII printable subset; lowercase
-//! maps to uppercase. Unknown → space. Each glyph = 8 bytes (8 rows, MSB=left).
+//! maps to uppercase. Unknown → space. Each glyph = 8 bytes (8 rows, LSB=left (bit0=leftmost col)).
 
 /// Glyph table for chars `' '..'~'` (0x20..=0x7E). Compact blocky font.
 /// NOT a proprietary font; generated minimalist 8x8. (honest: not Tetris art.)
@@ -207,7 +207,7 @@ pub fn glyph(c: char) -> [u8; 8] {
     }
 }
 
-/// 8 pixels per glyph row; MSB = leftmost.
+/// 8 pixels per glyph row; bit0 = leftmost (LSB-left).
 pub const GLYPH_W: i32 = 8;
 pub const GLYPH_H: i32 = 8;
 
