@@ -50,6 +50,10 @@ pub enum Key {
     R,
     Q,
     M,
+    /// confirm / select. (menus, name entry)
+    Enter,
+    /// delete previous char. (name entry)
+    Backspace,
 }
 
 /// Key bindings. (§4.1; our defaults; remappable)
@@ -242,6 +246,305 @@ impl DasArr {
         });
         // avoid infinite catchup; clamp
         out
+    }
+}
+
+// ---------- persistence + remapping (Phase 5; §4.1 remapping; §2.5 persisted) ----------
+
+/// Remappable actions. (§4.1) each has a list of bound `Key`s.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum RemapTarget {
+    MoveLeft,
+    MoveRight,
+    SoftDrop,
+    HardDrop,
+    RotateCw,
+    RotateCcw,
+    Hold,
+    Pause,
+    Restart,
+    Quit,
+}
+
+impl RemapTarget {
+    pub const ALL: &'static [RemapTarget] = &[
+        RemapTarget::MoveLeft,
+        RemapTarget::MoveRight,
+        RemapTarget::SoftDrop,
+        RemapTarget::HardDrop,
+        RemapTarget::RotateCw,
+        RemapTarget::RotateCcw,
+        RemapTarget::Hold,
+        RemapTarget::Pause,
+        RemapTarget::Restart,
+        RemapTarget::Quit,
+    ];
+    pub fn label(self) -> &'static str {
+        match self {
+            RemapTarget::MoveLeft => "MOVE LEFT",
+            RemapTarget::MoveRight => "MOVE RIGHT",
+            RemapTarget::SoftDrop => "SOFT DROP",
+            RemapTarget::HardDrop => "HARD DROP",
+            RemapTarget::RotateCw => "ROTATE CW",
+            RemapTarget::RotateCcw => "ROTATE CCW",
+            RemapTarget::Hold => "HOLD",
+            RemapTarget::Pause => "PAUSE",
+            RemapTarget::Restart => "RESTART",
+            RemapTarget::Quit => "QUIT",
+        }
+    }
+    pub fn key_name(self) -> &'static str {
+        match self {
+            RemapTarget::MoveLeft => "move_left",
+            RemapTarget::MoveRight => "move_right",
+            RemapTarget::SoftDrop => "soft_drop",
+            RemapTarget::HardDrop => "hard_drop",
+            RemapTarget::RotateCw => "rotate_cw",
+            RemapTarget::RotateCcw => "rotate_ccw",
+            RemapTarget::Hold => "hold",
+            RemapTarget::Pause => "pause",
+            RemapTarget::Restart => "restart",
+            RemapTarget::Quit => "quit",
+        }
+    }
+    pub fn from_key_name(s: &str) -> Option<RemapTarget> {
+        RemapTarget::ALL.iter().copied().find(|t| t.key_name() == s)
+    }
+}
+
+impl Key {
+    /// stable text name for persistence.
+    pub fn name(self) -> &'static str {
+        match self {
+            Key::Left => "Left",
+            Key::Right => "Right",
+            Key::Down => "Down",
+            Key::Space => "Space",
+            Key::Up => "Up",
+            Key::X => "X",
+            Key::Z => "Z",
+            Key::LeftCtrl => "LeftCtrl",
+            Key::C => "C",
+            Key::LeftShift => "LeftShift",
+            Key::Numpad0 => "Numpad0",
+            Key::Numpad2 => "Numpad2",
+            Key::Numpad4 => "Numpad4",
+            Key::Numpad5 => "Numpad5",
+            Key::Numpad6 => "Numpad6",
+            Key::Numpad8 => "Numpad8",
+            Key::Numpad1 => "Numpad1",
+            Key::Numpad3 => "Numpad3",
+            Key::Numpad7 => "Numpad7",
+            Key::Numpad9 => "Numpad9",
+            Key::Escape => "Escape",
+            Key::F1 => "F1",
+            Key::R => "R",
+            Key::Q => "Q",
+            Key::M => "M",
+            Key::Enter => "Enter",
+            Key::Backspace => "Backspace",
+        }
+    }
+    pub fn from_name(s: &str) -> Option<Key> {
+        Some(match s {
+            "Left" => Key::Left,
+            "Right" => Key::Right,
+            "Down" => Key::Down,
+            "Space" => Key::Space,
+            "Up" => Key::Up,
+            "X" => Key::X,
+            "Z" => Key::Z,
+            "LeftCtrl" => Key::LeftCtrl,
+            "C" => Key::C,
+            "LeftShift" => Key::LeftShift,
+            "Numpad0" => Key::Numpad0,
+            "Numpad2" => Key::Numpad2,
+            "Numpad4" => Key::Numpad4,
+            "Numpad5" => Key::Numpad5,
+            "Numpad6" => Key::Numpad6,
+            "Numpad8" => Key::Numpad8,
+            "Numpad1" => Key::Numpad1,
+            "Numpad3" => Key::Numpad3,
+            "Numpad7" => Key::Numpad7,
+            "Numpad9" => Key::Numpad9,
+            "Escape" => Key::Escape,
+            "F1" => Key::F1,
+            "R" => Key::R,
+            "Q" => Key::Q,
+            "M" => Key::M,
+            "Enter" => Key::Enter,
+            "Backspace" => Key::Backspace,
+            _ => return None,
+        })
+    }
+    /// human label for display.
+    pub fn label(self) -> &'static str {
+        self.name()
+    }
+}
+
+impl KeyMap {
+    fn binding(&self, t: RemapTarget) -> &Vec<Key> {
+        match t {
+            RemapTarget::MoveLeft => &self.move_left,
+            RemapTarget::MoveRight => &self.move_right,
+            RemapTarget::SoftDrop => &self.soft_drop,
+            RemapTarget::HardDrop => &self.hard_drop,
+            RemapTarget::RotateCw => &self.rotate_cw,
+            RemapTarget::RotateCcw => &self.rotate_ccw,
+            RemapTarget::Hold => &self.hold,
+            RemapTarget::Pause => &self.pause,
+            RemapTarget::Restart => &self.restart,
+            RemapTarget::Quit => &self.quit,
+        }
+    }
+    fn binding_mut(&mut self, t: RemapTarget) -> &mut Vec<Key> {
+        match t {
+            RemapTarget::MoveLeft => &mut self.move_left,
+            RemapTarget::MoveRight => &mut self.move_right,
+            RemapTarget::SoftDrop => &mut self.soft_drop,
+            RemapTarget::HardDrop => &mut self.hard_drop,
+            RemapTarget::RotateCw => &mut self.rotate_cw,
+            RemapTarget::RotateCcw => &mut self.rotate_ccw,
+            RemapTarget::Hold => &mut self.hold,
+            RemapTarget::Pause => &mut self.pause,
+            RemapTarget::Restart => &mut self.restart,
+            RemapTarget::Quit => &mut self.quit,
+        }
+    }
+    /// comma-joined key names for a target. (display + persistence)
+    pub fn binding_names(&self, t: RemapTarget) -> String {
+        let v = self.binding(t);
+        if v.is_empty() {
+            return "(none)".into();
+        }
+        v.iter().map(|k| k.name()).collect::<Vec<_>>().join(",")
+    }
+    /// **Remap**: set a single primary binding for `target`. (§4.1 remapping)
+    pub fn set_binding(&mut self, t: RemapTarget, key: Key) {
+        let b = self.binding_mut(t);
+        // avoid duplicate within action
+        b.retain(|k| *k != key);
+        b.insert(0, key);
+    }
+    /// add a secondary binding.
+    pub fn add_binding(&mut self, t: RemapTarget, key: Key) {
+        let b = self.binding_mut(t);
+        if !b.contains(&key) {
+            b.push(key);
+        }
+    }
+    pub fn clear_binding(&mut self, t: RemapTarget) {
+        self.binding_mut(t).clear();
+    }
+    pub fn reset_defaults(&mut self) {
+        *self = KeyMap::default();
+    }
+
+    // ---- persistence (custom text; no serde) ----
+
+    /// `key.move_left=Left,Numpad4` lines.
+    pub fn to_text(&self) -> String {
+        let mut s = String::new();
+        for t in RemapTarget::ALL {
+            s.push_str(&format!(
+                "key.{}={}\n",
+                t.key_name(),
+                self.binding_names(*t).replace("(none)", "")
+            ));
+        }
+        s
+    }
+    /// merge `key.*` lines into self. unknown keys ignored.
+    pub fn apply_text_line(&mut self, k: &str, v: &str) {
+        if let Some(name) = k.trim().strip_prefix("key.")
+            && let Some(t) = RemapTarget::from_key_name(name.trim())
+        {
+            let keys: Vec<Key> = v
+                .split(',')
+                .filter_map(|n| Key::from_name(n.trim()))
+                .collect();
+            *self.binding_mut(t) = keys;
+        }
+    }
+}
+
+#[cfg(test)]
+mod remap_tests {
+    use super::*;
+
+    #[test]
+    fn key_name_roundtrip_all() {
+        // every constructible Key roundtrips through name.
+        let all = [
+            Key::Left,
+            Key::Right,
+            Key::Down,
+            Key::Space,
+            Key::Up,
+            Key::X,
+            Key::Z,
+            Key::LeftCtrl,
+            Key::C,
+            Key::LeftShift,
+            Key::Numpad0,
+            Key::Numpad1,
+            Key::Numpad2,
+            Key::Numpad3,
+            Key::Numpad4,
+            Key::Numpad5,
+            Key::Numpad6,
+            Key::Numpad7,
+            Key::Numpad8,
+            Key::Numpad9,
+            Key::Escape,
+            Key::F1,
+            Key::R,
+            Key::Q,
+            Key::M,
+            Key::Enter,
+            Key::Backspace,
+        ];
+        for k in all {
+            assert_eq!(Key::from_name(k.name()), Some(k), "roundtrip {k:?}");
+        }
+        assert_eq!(Key::from_name("nope"), None);
+    }
+
+    #[test]
+    fn remap_set_and_clear() {
+        let mut km = KeyMap::default();
+        km.set_binding(RemapTarget::HardDrop, Key::Enter);
+        assert!(km.classify(Key::Enter, true) == KeyAction::Command(GameCommand::HardDrop));
+        assert!(km.hard_drop.contains(&Key::Enter));
+        km.clear_binding(RemapTarget::HardDrop);
+        assert_eq!(km.classify(Key::Enter, true), KeyAction::None);
+    }
+
+    #[test]
+    fn keymap_text_roundtrip() {
+        let mut km = KeyMap::default();
+        km.set_binding(RemapTarget::MoveLeft, Key::Enter);
+        let text = km.to_text();
+        let mut km2 = KeyMap::default();
+        for line in text.lines() {
+            if let Some((k, v)) = line.split_once('=') {
+                km2.apply_text_line(k, v);
+            }
+        }
+        assert_eq!(
+            km.binding_names(RemapTarget::MoveLeft),
+            km2.binding_names(RemapTarget::MoveLeft)
+        );
+        assert!(km2.move_left.contains(&Key::Enter));
+    }
+
+    #[test]
+    fn remap_target_all_labels() {
+        for t in RemapTarget::ALL {
+            assert!(!t.label().is_empty());
+            assert!(!t.key_name().is_empty());
+        }
     }
 }
 

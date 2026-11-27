@@ -104,7 +104,10 @@ and the application state machine.
 - [x] **Phase 4** app state machine + menus; variants (Marathon/Sprint/Ultra);
       start level; lock-down mode; next-length/hold/ghost/mono; goal system;
       **high-score table + settings persistence** (custom text; no serde).
-- [ ] **Phase 5** sound/music + remapping UI + replay.
+- [x] **Phase 5** sound effects + Korobeiniki music slot (no licensed asset) +
+      volume/toggle (`Audio` trait; procedural synth on SDL2 audio); key
+      remapping UI + persisted; seeded-random + replay/determinism; high-score
+      name entry; help/demo; settings persistence; robustness.
 
 ## Recommended reading order
 

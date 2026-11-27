@@ -8,7 +8,7 @@ sized to be independently reviewable. No phase starts until the previous is gree
 ```
 Phase 0  Scaffolding & conventions
 Phase 1  Pure core engine  ▶ rules-correct, headless, fully tested
-Phase 2  SDL2 shell + game loop + input
+Phase 2  SDL2 shell + game loop + input                    ✅ done
 Phase 3  Full presentation (HUD, next/hold, ghost, notifications, pause, animation)
 Phase 4  Variants, levels/goals, endings, high scores
 Phase 5  Polish: sound, music, settings, help, replay/determinism
@@ -123,18 +123,37 @@ guideline goal examples verified (§6 L4→5=40 etc.); tests green.
 
 ---
 
-## Phase 5 — Polish
+## Phase 5 — Polish  ✅ **done**
 
-- **Sound effects** (§13.2 min + extra); `sdl2_mixer`; `Audio` trait; toggle/volume.
-- **BGM**: Korobeiniki slot for licensed asset; toggle/volume; **[not shipping
-  protected audio]**; random/other **[if licensed]** (§13.3).
-- **Settings** persistence (keys, options, volumes); **remapping UI**.
-- **Help/demo** incl. scoring demo (§8 note); correct terminology (§2.6); credits.
-- **Replay/determinism** (seed + input log); **record/export**.
-- **Robustness**: focus, resize, frame pacing, no panics; `cargo clippy`.
-- **Docs**: sync flows; README; controls; build instructions; licensing note.
+- **Sound effects** (§13.2 min + extra); `Audio` trait; toggle/volume; master mute.
+  **Implementation note:** plan named `sdl2_mixer`, but that system library isn't
+  available here; we implement an **`Audio` trait + procedural synthesis** on
+  SDL2's *built-in* audio (no extra dependency, **no licensed assets**). Pure
+  `SoundCue` mapping `core` events→sound (tested); `NullAudio` fallback (headless);
+  `SDL_AUDIODRIVER=dummy` safe. (`src/sound.rs`.)
+- **BGM**: **`MusicSlot::Korobeiniki`** slot; **not shipping protected audio**;
+  toggle/volume; a user-supplied PCM16 `korobeiniki.wav` in `<data>/music/` is
+  looped if present; otherwise silent. **[not shipping protected audio]** (§13.3).
+- **Settings** persistence (keys, options, volumes); **remapping UI** (§4.1
+  `RemapTarget`, capture-a-key, clear/reset; persisted `key.*`); `Settings`
+  roundtrip + robust parse; **atomic writes**. 
+- **Seeded randomness** (`seed_random` + `seed`, persisted; shown on Game Over;
+  restart = same seed; fixed-seed mode). 
+- **Replay/determinism** (`src/replay.rs`; seed + ordered input log; custom text;
+  **record/export** `tehtrys_replay.txt`; re-simulation test; `Replay::run`).
+- **High-score name entry** (§11.2; on qualify; type name; sanitize; persisted
+  `last_name`; default skip).
+- **Help/demo** incl. **scoring demo** (§8 note); correct terminology (§2.6);
+  credits; **attract-mode demo**. 
+- **Robustness**: focus-loss auto-pause; resize; frame clamp; no panics;
+  `#![forbid(unsafe_code)]`; tolerant settings/score/replay parsing; atomic
+  persistence; sound-device fallback; `cargo clippy -D warnings` clean.
+- **Docs**: sync flows; README; controls; build; licensing note.
 
-**Acceptance.** Feature-complete vs requirements checklist; tests + manual pass.
+**Acceptance.** Feature-complete vs requirements checklist; tests green.
+**117 tests** (`cargo test`); `fmt`/`clippy` clean; headless smoke ok.
+*(Manual audio verification not performed in headless env; synth + mapping
+unit-tested; rendering not pixel-verified.)*
 
 ---
 

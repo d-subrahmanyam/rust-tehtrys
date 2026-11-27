@@ -758,6 +758,7 @@ pub fn draw_game_over(
     reason: &str,
     variant: &str,
     high_score: u64,
+    seed: u64,
     _mono: bool,
 ) {
     clear_bg(canvas);
@@ -791,6 +792,7 @@ pub fn draw_game_over(
         format!("LINES {}", lines),
         format!("LEVEL {}", level),
         format!("TIME {}", format_time(time_ms)),
+        format!("SEED {}", seed),
     ];
     let mut y = h as i32 / 3 + 60;
     for l in &lines_s {
@@ -802,6 +804,260 @@ pub fn draw_game_over(
         cx - text_width("R=RESTART  ESC=MENU", 1) / 2,
         y + 12,
         "R=RESTART  ESC=MENU",
+        SCREEN_DIM,
+        1,
+    );
+    canvas.present();
+}
+
+// ---------- Phase-5 screens: Options v2, key remapping, help, name entry ----------
+
+use crate::input::{KeyMap, RemapTarget};
+
+/// navigable Options list. (§2.5 + Phase-5 sound/remap/seed)
+pub fn draw_options_v2(
+    canvas: &mut Canvas<Window>,
+    s: &crate::persist::Settings,
+    index: usize,
+    rows: &[&str],
+    _mono: bool,
+) {
+    clear_bg(canvas);
+    let (w, _h) = canvas.window().size();
+    let title = "OPTIONS";
+    draw_text(
+        canvas,
+        (w as i32 - text_width(title, 3)) / 2,
+        24,
+        title,
+        SCREEN_ACCENT,
+        3,
+    );
+    let values = option_values(s);
+    let x = 40;
+    let mut y = 70;
+    for (i, label) in rows.iter().enumerate() {
+        let sel = i == index;
+        let color = if sel { SCREEN_SEL } else { SCREEN_TEXT };
+        draw_text(canvas, x, y, if sel { ">" } else { " " }, color, 1);
+        draw_text(canvas, x + 12, y, label, color, 1);
+        if let Some(v) = values.get(i) {
+            draw_text(canvas, 320, y, v, SCREEN_DIM, 1);
+        }
+        y += 22;
+    }
+    draw_text(
+        canvas,
+        x,
+        y + 10,
+        "UP/DOWN  LEFT/RIGHT adjust  ENTER select  ESC back",
+        SCREEN_DIM,
+        1,
+    );
+    canvas.present();
+}
+
+fn option_values(s: &crate::persist::Settings) -> Vec<String> {
+    vec![
+        s.next_len.to_string(),
+        onoff(s.hold_enabled),
+        onoff(s.ghost_enabled),
+        onoff(s.monochrome),
+        s.lock_ruleset.to_uppercase(),
+        s.goal_system.to_uppercase(),
+        onoff(s.sound.sfx_enabled),
+        format!("{}%", s.sound.sfx_volume),
+        onoff(s.sound.music_enabled),
+        format!("{}%", s.sound.music_volume),
+        onoff(s.sound.muted),
+        onoff(s.seed_random),
+        format!("{}", s.seed),
+        "->".into(),
+    ]
+}
+fn onoff(b: bool) -> String {
+    if b { "ON".into() } else { "OFF".into() }
+}
+
+/// key remapping screen. (§4.1; Phase 5)
+pub fn draw_keymap(
+    canvas: &mut Canvas<Window>,
+    km: &KeyMap,
+    index: usize,
+    capturing: bool,
+    _mono: bool,
+) {
+    clear_bg(canvas);
+    let (w, _h) = canvas.window().size();
+    let title = "KEY MAPPING";
+    draw_text(
+        canvas,
+        (w as i32 - text_width(title, 3)) / 2,
+        24,
+        title,
+        SCREEN_ACCENT,
+        3,
+    );
+    let x = 40;
+    let mut y = 66;
+    for (i, t) in RemapTarget::ALL.iter().enumerate() {
+        let sel = i == index;
+        let color = if sel { SCREEN_SEL } else { SCREEN_TEXT };
+        draw_text(canvas, x, y, if sel { ">" } else { " " }, color, 1);
+        draw_text(canvas, x + 12, y, t.label(), color, 1);
+        draw_text(canvas, 260, y, &km.binding_names(*t), SCREEN_DIM, 1);
+        y += 22;
+    }
+    let hint = if capturing {
+        "PRESS A KEY TO BIND  (ESC cancel)"
+    } else {
+        "ENTER=rebind  C=clear  R=reset-defaults  ESC=back"
+    };
+    draw_text(
+        canvas,
+        x,
+        y + 10,
+        hint,
+        if capturing { NOTIFY } else { SCREEN_DIM },
+        1,
+    );
+    canvas.present();
+}
+
+/// help + scoring demo + terminology + credits. (§2.6; §8 note; Phase 5)
+pub fn draw_help(canvas: &mut Canvas<Window>, _mono: bool) {
+    clear_bg(canvas);
+    let (w, _h) = canvas.window().size();
+    let title = "HELP";
+    draw_text(
+        canvas,
+        (w as i32 - text_width(title, 3)) / 2,
+        22,
+        title,
+        SCREEN_ACCENT,
+        3,
+    );
+    let mut y = 56;
+    let section = |canvas: &mut Canvas<Window>, y: &mut i32, t: &str, lines: &[&str]| {
+        draw_text(canvas, 36, *y, t, SCREEN_ACCENT, 1);
+        *y += 16;
+        for l in lines {
+            draw_text(canvas, 48, *y, l, SCREEN_TEXT, 1);
+            *y += 14;
+        }
+        *y += 6;
+    };
+    section(
+        canvas,
+        &mut y,
+        "CONTROLS (remappable)",
+        &[
+            "LEFT/RIGHT move   DOWN soft drop   SPACE hard drop",
+            "UP/X rotate CW    Z/Ctrl rotate CCW   C/Shift hold",
+            "ESC/F1 pause   R restart   Q menu   M monochrome",
+        ],
+    );
+    section(
+        canvas,
+        &mut y,
+        "OBJECTIVE",
+        &[
+            "Clear full rows. 10-wide x 20; 7 pieces; 7-bag.",
+            "Survive; Marathon levels 1-15; Sprint 40; Ultra 2min.",
+        ],
+    );
+    section(
+        canvas,
+        &mut y,
+        "SCORING DEMO (per cleared line x level)",
+        &[
+            "Single 100  Double 300  Triple 500  Tetris 800",
+            "T-Spin 400/800/1200 +mini; Back-to-Back x1.5; soft+1 hard+2",
+            "(2009 guideline: no combo scoring; B2B qualifying clears)",
+        ],
+    );
+    section(
+        canvas,
+        &mut y,
+        "TERMINOLOGY",
+        &[
+            "Tetrimino SRS 7-bag Hold Ghost Lock-Down T-Spin Mini",
+            "Back-to-Back Skyline Buffer Game Over LockOut BlockOut TopOut",
+        ],
+    );
+    section(
+        canvas,
+        &mut y,
+        "CREDITS / NOTES",
+        &[
+            "tehtrys - original; non-commercial CC BY-NC 4.0",
+            "not affiliated with The Tetris Company; no protected art/audio",
+            "sound: procedural synthesis; Korobeiniki slot no licensed asset",
+        ],
+    );
+    draw_text(canvas, 36, y + 4, "ESC/ENTER = back", SCREEN_DIM, 1);
+    canvas.present();
+}
+
+/// high-score name entry. (§11.2; Phase 5) type name; Enter submit; Esc default.
+pub fn draw_name_entry(
+    canvas: &mut Canvas<Window>,
+    name: &str,
+    score: u64,
+    variant: &str,
+    _mono: bool,
+) {
+    clear_bg(canvas);
+    let (w, h) = canvas.window().size();
+    let cx = w as i32 / 2;
+    draw_text(
+        canvas,
+        cx - text_width("NEW HIGH SCORE!", 3) / 2,
+        h as i32 / 3 - 30,
+        "NEW HIGH SCORE!",
+        NOTIFY,
+        3,
+    );
+    let s = format!("SCORE {}  {}", score, variant);
+    draw_text(
+        canvas,
+        cx - text_width(&s, 1) / 2,
+        h as i32 / 3 + 8,
+        &s,
+        TEXT,
+        1,
+    );
+    draw_text(
+        canvas,
+        cx - text_width("ENTER NAME", 1) / 2,
+        h as i32 / 3 + 32,
+        "ENTER NAME",
+        SCREEN_DIM,
+        1,
+    );
+    // box
+    let bw = 200;
+    fill(
+        canvas,
+        Rect::new(cx - bw / 2, h as i32 / 3 + 50, bw as u32, 28),
+        PANEL,
+    );
+    canvas.set_draw_color(BORDER);
+    let _ = canvas.draw_rect(Rect::new(cx - bw / 2, h as i32 / 3 + 50, bw as u32, 28));
+    let shown = if name.is_empty() { "" } else { name };
+    draw_text(
+        canvas,
+        cx - bw / 2 + 8,
+        h as i32 / 3 + 58,
+        shown,
+        SCREEN_SEL,
+        2,
+    );
+    draw_text(
+        canvas,
+        cx - text_width("ENTER=ok  ESC=skip", 1) / 2,
+        h as i32 / 3 + 90,
+        "ENTER=ok  ESC=skip",
         SCREEN_DIM,
         1,
     );

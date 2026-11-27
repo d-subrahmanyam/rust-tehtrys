@@ -50,3 +50,13 @@ app screens. **Paused** only reachable from Playing.
   simplified for learning. 
 - **HighScoreEntry** then **MainMenu**; table persisted (§11.2). 
 - v1 simplifies SelectPlayers=1; keeps structure for later multiplayer (Appendix B).
+
+## Phase-5 additions (implemented)
+
+States added to flows/14 `AppState`: **KeyMap** (key remapping capture; §4.1),
+**Help** (§2.6 + scoring demo + credits), **NameEntry** (§11.2 high-score name
+entry; on qualify after GameOver-finish), **Demo** (attract mode). 
+GameOver → (NameEntry if qualifies) → GameOver. Options extended (sound volume/
+toggles, seed, remap). Pause auto on focus-loss. Sound (§13.2/§13.3) is
+presentation-only, driven by `core` `EngineEvent`s; `core` stays pure.
+Replay recorded (`tehtrys_replay.txt`); deterministic restart (same seed).

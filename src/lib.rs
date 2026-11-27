@@ -13,3 +13,5 @@ pub mod font;
 pub mod input;
 pub mod persist;
 pub mod render;
+pub mod replay;
+pub mod sound;

@@ -115,19 +115,18 @@ impl HighScoreTable {
         }
         let mut s = String::from("# tehtrys high scores: name|score|level|lines|variant|time_ms\n");
         for e in &self.entries {
-            // sanitize separators in name
-            let name = e.name.replace(['|', '\n'], " ");
+            // sanitize separators + length in name (robustness)
+            let name = sanitize_name(&e.name).replace(['|', '\n'], " ");
             s.push_str(&format!(
                 "{}|{}|{}|{}|{}|{}\n",
                 name, e.score, e.level, e.lines, e.variant, e.time_ms
             ));
         }
-        let mut f = fs::File::create(p)?;
-        f.write_all(s.as_bytes())
+        atomic_write(&p, s.as_bytes())
     }
 }
 
-/// Key=value settings. (§2.3/§2.5 persisted) simple text.
+/// Key=value settings. (§2.3/§2.5 persisted; Phase-5 keys + sound + remapping) simple text.
 #[derive(Clone, Debug)]
 pub struct Settings {
     pub lock_ruleset: String, // extended|infinite|classic
@@ -138,6 +137,16 @@ pub struct Settings {
     pub goal_system: String, // fixed|variable
     pub start_level: u32,    // 1..=15
     pub variant: String,     // marathon|sprint|ultra
+    // ---- Phase 5 ----
+    /// sound + music. (§13.2/§13.3; §2.5)
+    pub sound: crate::sound::SoundSettings,
+    /// key remapping. (§4.1; §2.5 persisted)
+    pub keymap: crate::input::KeyMap,
+    /// seeded randomness. `seed_random` => pick fresh seed each game; else use `seed`. (§3.3; replay)
+    pub seed_random: bool,
+    pub seed: u64,
+    /// last high-score name entered. (§11.2 name entry)
+    pub last_name: String,
 }
 
 impl Default for Settings {
@@ -151,6 +160,11 @@ impl Default for Settings {
             goal_system: "fixed".into(),
             start_level: 1,
             variant: "marathon".into(),
+            sound: crate::sound::SoundSettings::default(),
+            keymap: crate::input::KeyMap::default(),
+            seed_random: true, // random seed each game; deterministic replay still available
+            seed: 0x7E77_21F5, // fixed fallback seed (Phase-4 value)
+            last_name: "YOU".into(),
         }
     }
 }
@@ -159,33 +173,59 @@ impl Settings {
     pub fn path() -> PathBuf {
         data_dir().join(SETTINGS_FILE)
     }
-    pub fn load() -> Self {
+
+    /// parse from text (pure; robust; unknown keys ignored; missing keys default).
+    pub fn from_text(text: &str) -> Self {
         let mut s = Self::default();
-        if let Ok(text) = fs::read_to_string(Self::path()) {
-            for line in text.lines() {
-                if let Some((k, v)) = line.split_once('=') {
-                    match k.trim() {
-                        "lock_ruleset" => s.lock_ruleset = v.trim().into(),
-                        "next_len" => s.next_len = v.trim().parse().unwrap_or(5).clamp(1, 6),
-                        "hold_enabled" => s.hold_enabled = v.trim() == "true",
-                        "ghost_enabled" => s.ghost_enabled = v.trim() == "true",
-                        "monochrome" => s.monochrome = v.trim() == "true",
-                        "goal_system" => s.goal_system = v.trim().into(),
-                        "start_level" => s.start_level = v.trim().parse().unwrap_or(1).clamp(1, 15),
-                        "variant" => s.variant = v.trim().into(),
-                        _ => {}
+        s.apply_text(text);
+        s
+    }
+
+    pub fn apply_text(&mut self, text: &str) {
+        for line in text.lines() {
+            let line = line.trim();
+            if line.is_empty() || line.starts_with('#') {
+                continue;
+            }
+            if let Some((k, v)) = line.split_once('=') {
+                let k = k.trim();
+                let v = v.trim();
+                match k {
+                    "lock_ruleset" => self.lock_ruleset = v.into(),
+                    "next_len" => self.next_len = v.parse().unwrap_or(5).clamp(1, 6),
+                    "hold_enabled" => self.hold_enabled = v == "true",
+                    "ghost_enabled" => self.ghost_enabled = v == "true",
+                    "monochrome" => self.monochrome = v == "true",
+                    "goal_system" => self.goal_system = v.into(),
+                    "start_level" => self.start_level = v.parse().unwrap_or(1).clamp(1, 15),
+                    "variant" => self.variant = v.into(),
+                    // sound (§13.2/§13.3)
+                    "sfx_enabled" => self.sound.sfx_enabled = v == "true",
+                    "sfx_volume" => {
+                        self.sound.sfx_volume =
+                            crate::sound::SoundSettings::clamp_volume(v.parse().unwrap_or(80))
                     }
+                    "music_enabled" => self.sound.music_enabled = v == "true",
+                    "music_volume" => {
+                        self.sound.music_volume =
+                            crate::sound::SoundSettings::clamp_volume(v.parse().unwrap_or(50))
+                    }
+                    "muted" => self.sound.muted = v == "true",
+                    // replay/seed (§3.3)
+                    "seed_random" => self.seed_random = v == "true",
+                    "seed" => self.seed = v.parse().unwrap_or(0x7E77_21F5),
+                    "last_name" => self.last_name = sanitize_name(v),
+                    // key remapping (key.*)
+                    _ if k.starts_with("key.") => self.keymap.apply_text_line(k, v),
+                    _ => {}
                 }
             }
         }
-        s
     }
-    pub fn save(&self) -> std::io::Result<()> {
-        let p = Self::path();
-        if let Some(dir) = p.parent() {
-            fs::create_dir_all(dir)?;
-        }
-        let s = format!(
+
+    /// serialize to text (pure).
+    pub fn to_text(&self) -> String {
+        let mut s = format!(
             "lock_ruleset={}\nnext_len={}\nhold_enabled={}\nghost_enabled={}\nmonochrome={}\ngoal_system={}\nstart_level={}\nvariant={}\n",
             self.lock_ruleset,
             self.next_len,
@@ -196,8 +236,73 @@ impl Settings {
             self.start_level,
             self.variant
         );
-        fs::write(p, s)
+        s.push_str(&format!(
+            "sfx_enabled={}\nsfx_volume={}\nmusic_enabled={}\nmusic_volume={}\nmuted={}\n",
+            self.sound.sfx_enabled,
+            self.sound.sfx_volume,
+            self.sound.music_enabled,
+            self.sound.music_volume,
+            self.sound.muted
+        ));
+        s.push_str(&format!(
+            "seed_random={}\nseed={}\nlast_name={}\n",
+            self.seed_random,
+            self.seed,
+            sanitize_name(&self.last_name)
+        ));
+        s.push_str(&self.keymap.to_text());
+        s
     }
+
+    pub fn load() -> Self {
+        match fs::read_to_string(Self::path()) {
+            Ok(text) => Self::from_text(&text),
+            Err(_) => Self::default(),
+        }
+    }
+
+    /// save robustly: write temp + rename (atomic; robustness).
+    pub fn save(&self) -> std::io::Result<()> {
+        let p = Self::path();
+        atomic_write(&p, self.to_text().as_bytes())
+    }
+}
+
+/// sanitize a name for persistence + display. (§11.2 name entry; robustness)
+pub fn sanitize_name(s: &str) -> String {
+    let cleaned: String = s
+        .chars()
+        .filter(|c| !c.is_control() && *c != '|' && *c != '=' && *c != '\n')
+        .take(crate::persist::MAX_NAME_LEN)
+        .collect();
+    let trimmed = cleaned.trim().to_string();
+    if trimmed.is_empty() {
+        "YOU".into()
+    } else {
+        trimmed
+    }
+}
+
+/// max high-score name length. (§11.2)
+pub const MAX_NAME_LEN: usize = 10;
+
+/// write file atomically (temp + rename). robustness.
+pub fn atomic_write(path: &std::path::Path, bytes: &[u8]) -> std::io::Result<()> {
+    if let Some(dir) = path.parent() {
+        fs::create_dir_all(dir)?;
+    }
+    let tmp = path.with_extension("tmp");
+    {
+        let mut f = fs::File::create(&tmp)?;
+        f.write_all(bytes)?;
+        f.sync_all().ok();
+    }
+    fs::rename(&tmp, path)
+}
+
+/// public data dir. (~/.local/share/tehtrys) for settings/scores/replay/music.
+pub fn data_dir_public() -> PathBuf {
+    data_dir()
 }
 
 fn data_dir() -> PathBuf {
@@ -247,6 +352,56 @@ mod tests {
         assert_eq!(s.next_len, 5);
         assert_eq!(s.start_level, 1); // §2.3.3 default 1
         assert_eq!(s.variant, "marathon"); // §2.3.2 default
+        // Phase-5 defaults
+        assert!(s.sound.sfx_enabled);
+        assert!(s.sound.music_enabled);
+        assert!(!s.sound.muted);
+        assert_eq!(s.seed, 0x7E77_21F5);
+        assert_eq!(s.last_name, "YOU");
+    }
+
+    #[test]
+    fn settings_text_roundtrip_including_sound_and_keymap() {
+        let mut s = Settings::default();
+        s.sound.sfx_volume = 33;
+        s.sound.music_volume = 66;
+        s.sound.muted = true;
+        s.sound.sfx_enabled = false;
+        s.seed = 12345;
+        s.seed_random = false;
+        s.last_name = "ALICE".into();
+        s.keymap.set_binding(
+            crate::input::RemapTarget::HardDrop,
+            crate::input::Key::Enter,
+        );
+        let text = s.to_text();
+        let back = Settings::from_text(&text);
+        assert_eq!(back.sound.sfx_volume, 33);
+        assert_eq!(back.sound.music_volume, 66);
+        assert!(back.sound.muted);
+        assert!(!back.sound.sfx_enabled);
+        assert_eq!(back.seed, 12345);
+        assert!(!back.seed_random);
+        assert_eq!(back.last_name, "ALICE");
+        assert!(back.keymap.hard_drop.contains(&crate::input::Key::Enter));
+    }
+
+    #[test]
+    fn settings_robust_against_garbage() {
+        let s = Settings::from_text(
+            "garbage\n=x\nnext_len=999\nsfx_volume=-5\nstart_level=abc\nunknown=1\nkey.bogus=Left\n",
+        );
+        assert_eq!(s.next_len, 6); // clamped
+        assert_eq!(s.sound.sfx_volume, 0); // clamped
+        assert_eq!(s.start_level, 1); // default on parse fail
+    }
+
+    #[test]
+    fn sanitize_name_rules() {
+        assert_eq!(sanitize_name("  hi  "), "hi");
+        assert_eq!(sanitize_name("a|b=c\nd"), "abcd");
+        assert_eq!(sanitize_name(""), "YOU");
+        assert!(sanitize_name(&"x".repeat(50)).len() <= MAX_NAME_LEN);
     }
 
     #[test]
