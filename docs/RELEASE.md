@@ -33,6 +33,8 @@ git push origin vX.Y.Z              # triggers .github/workflows/release.yml
 - matrix linux/macos/windows; `rm .cargo/config.toml`; `lukka/get-cmake`. 
 - `cargo fmt --check`; `cargo test --locked --features bundled`; `cargo build --release --locked --target … --features bundled`. 
 - package `tehtrys-<ver>-<target>.{tar.gz,zip}` + `LICENSE`+`README`+`CHANGELOG`+`korobeiniki.wav`+`CREDITS`; `upload-artifact`+`gh-release`. 
+- Windows `.zip` artifacts are real ZIP files (`Compress-Archive`, verified non-empty); do not rename a `tar` archive to `.zip`.
+- Windows `.msi` (`cargo-wix`, `wix/main.wxs`) installs `tehtrys.exe`, `korobeiniki.wav`, credits, license, and a `tehtrys` **Start Menu** shortcut; installers are not code-signed, so Windows SmartScreen/Defender may warn.
 - **`--features bundled`** SDL2 self-contained (not verified); else system SDL2 + ship shared lib. 
 
 ## Artifacts / contents
@@ -41,4 +43,4 @@ git push origin vX.Y.Z              # triggers .github/workflows/release.yml
 
 ## Not shipped / note
 - no The-Tetris-Company protected art/audio; **not affiliated**; own SFX synth; **non-commercial**. 
-- `cargo-dist`, `cargo wix`, `.dmg`/`.msi`, app stores **not** shipped. 
+- `cargo-dist`, app stores, code signing/notarization **not** shipped. `.dmg`/`.msi`/`.dpkg` are built by `release.yml`.

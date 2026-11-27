@@ -88,17 +88,41 @@ jobs:
           ver="${GITHUB_REF_NAME#v}"; [ -n "$ver" ] || ver="0.0.0"
           name="tehtrys-${ver}-${{ matrix.target }}"
           bin="target/${{ matrix.target }}/release/${{ matrix.bin }}"
-          mkdir -p dist
-          cp "$bin" dist/ 2>/dev/null || cp "$bin" dist/
-          cp LICENSE README.md CHANGELOG.md dist/ 2>/dev/null || cp LICENSE README.md dist/
+          rm -rf dist
           mkdir -p dist/assets/audio
-          cp assets/audio/korobeiniki.wav assets/audio/CREDITS.md dist/assets/audio/ 2>/dev/null || true
+          cp "$bin" dist/
+          cp LICENSE README.md CHANGELOG.md dist/
+          cp assets/audio/korobeiniki.wav assets/audio/CREDITS.md dist/assets/audio/
           if [ "${{ matrix.pkg }}" = "tar.gz" ]; then
             tar -czf "${name}.tar.gz" -C dist .
-          else
-            # `zip` not on windows-latest; `tar -a` auto-compress (bsdtar Windows / GNU Linux). 
-            tar -a -cf "${name}.zip" -C dist .
           fi
+          ls -la
+
+      # Windows `shell: bash` uses GNU tar from Git Bash; `tar -a ... .zip` can create
+      # a tar renamed .zip. Use PowerShell + Compress-Archive and verify real ZIP entries.
+      - name: package windows zip
+        if: matrix.pkg == 'zip'
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $refName = $env:GITHUB_REF_NAME
+          if ([string]::IsNullOrEmpty($refName)) { $refName = 'master' }
+          $ver = $refName.TrimStart('v')
+          if ([string]::IsNullOrEmpty($ver)) { $ver = '0.0.0' }
+          $name = "tehtrys-${ver}-${{ matrix.target }}"
+          $zip = "${name}.zip"
+          $dist = (Resolve-Path 'dist').Path
+          if (Test-Path $zip) { Remove-Item $zip -Force }
+          Compress-Archive -Path (Join-Path $dist '*') -DestinationPath $zip -CompressionLevel Optimal -Force
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive = [System.IO.Compression.ZipFile]::OpenRead((Resolve-Path $zip).Path)
+          try {
+            if ($archive.Entries.Count -eq 0) { throw "Empty zip archive: $zip" }
+            Write-Host "Created $zip with $($archive.Entries.Count) entries"
+            $archive.Entries | Select-Object -First 20 | ForEach-Object { Write-Host "  $($_.FullName)" }
+          } finally {
+            $archive.Dispose()
+          }
           ls -la
 
       - uses: actions/upload-artifact@v4

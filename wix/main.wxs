@@ -20,6 +20,9 @@
           </Directory>
         </Directory>
       </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="tehtrys" />
+      </Directory>
     </Directory>
   </Fragment>
   <Fragment>
@@ -37,6 +40,20 @@
       </Component>
       <Component Id="License" Guid="*" Win64="yes" Directory="INSTALLFOLDER">
         <File Id="LICENSE" Source="LICENSE" KeyPath="yes" />
+      </Component>
+      <Component Id="StartMenuShortcut" Guid="*" Win64="yes" Directory="ApplicationProgramsFolder">
+        <Shortcut Id="TehtrysStartMenuShortcut"
+                  Name="tehtrys"
+                  Description="Faithful 2009 Tetris Guideline clone (non-commercial educational)"
+                  Target="[INSTALLFOLDER]tehtrys.exe"
+                  WorkingDirectory="INSTALLFOLDER" />
+        <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU"
+                       Key="Software\d-subrahmanyam\tehtrys"
+                       Name="installed"
+                       Type="integer"
+                       Value="1"
+                       KeyPath="yes" />
       </Component>
     </ComponentGroup>
   </Fragment>
