@@ -54,10 +54,89 @@ cargo clippy --all-targets -- -D warnings
 cargo fmt --check
 ```
 
-Requires a Rust toolchain (1.100+) and **SDL2** system library. On Debian/Ubuntu:
-`sudo apt install libsdl2-dev` (provides `libSDL2.so`). This repo also ships
-`.cargo/config.toml` `[env]` pointing at a linuxbrew SDL2; override `LIBRARY_PATH`
-if needed. Run with `cargo run`.
+### Requirements
+
+- **Rust toolchain 1.100+** (edition 2024).
+- **SDL2** system library. **Not** `sdl2_mixer` and **not** `sdl2_ttf`: sound uses
+  SDL2 *built-in* audio (original procedural synth); UI text uses an embedded
+  8×8 font. A pure-Rust core needs no system libs; only SDL2 must be findable.
+
+### Cross-platform: no source changes needed
+
+`core` is pure Rust; `app`/`render`/`sound` only use the `sdl2` crate. Building on
+**macOS** or **Windows** needs **no code changes** — only the **system SDL2
+library + linker environment** differs. `#![forbid(unsafe_code)]`; no unsafe.
+
+This repo ships `.cargo/config.toml` with `[env] LIBRARY_PATH` /
+`LD_LIBRARY_PATH = /home/linuxbrew/.linuxbrew/lib` **for this Linux box only**;
+`force = false`, so real environment variables win. On **macOS/Windows remove or
+override that block** (it injects a harmless nonexistent `/home/linuxbrew/...`
+path but won't find SDL2 for you).
+
+#### Linux (Debian/Ubuntu)
+
+```sh
+sudo apt install libsdl2-dev        # Fedora: SDL2-devel; Arch: sdl2
+cargo run
+```
+
+`cargo test` needs SDL2 linkable even without a display; `sdl2` crate ships
+bindings. `cargo test` does not need `libsdl2-dev` at *test-runtime* but does at
+link-time.
+
+#### macOS
+
+```sh
+brew install sdl2                   # https://brew.sh
+cargo run
+```
+
+Homebrew prefix `/opt/homebrew` (Apple Silicon) or `/usr/local` (Intel). If the
+linker can't find SDL2:
+
+```sh
+export LIBRARY_PATH="$(brew --prefix sdl2)/lib:${LIBRARY_PATH}"
+export DYLD_FALLBACK_LIBRARY_PATH="$(brew --prefix sdl2)/lib:${DYLD_FALLBACK_LIBRARY_PATH}"  # runtime
+```
+
+Remove the committed linuxbrew `[env]`. macOS runtime uses `DYLD_*`, not
+`LD_LIBRARY_PATH`. App bundling not covered. `cargo test` works headless;
+sound headless `SDL_AUDIODRIVER=dummy`. **Not verified on macOS in this env.**
+
+#### Windows
+
+1. Install **SDL2 development binaries** (e.g. `SDL2-devel-2.x-VC.zip` /
+   `-mingw` from libsdl.org). No header needed (`sdl2` crate ships bindings).
+2. Put `SDL2.dll` next to `target\debug\tehtrys.exe` (and `target\release\...`)
+   **and** on `PATH`.
+3. Point the linker at `SDL2.lib`:
+   - **MSVC (`x86_64-pc-windows-msvc`):** `set LIB=C:\SDL2\lib\x64;%LIB%` and
+     `set PATH=C:\SDL2\lib\x64;%PATH%`. (`LIBRARY_PATH`/`LD_LIBRARY_PATH`
+     are ignored by the MSVC linker.)
+   - **MinGW (`x86_64-pc-windows-gnu`):**
+     `set LIBRARY_PATH=C:\SDL2-mingw\x86_64-w64-mingw32\lib;%LIBRARY_PATH%`
+     + `PATH`; SDL2 mingw also ships `SDL2main`. 
+4. **Remove the committed linuxbrew `[env]`** in `.cargo/config.toml` (Unix paths).
+5. `cargo run`. 
+
+No source changes. (Alternatively enable `sdl2`'s `bundled` feature to vendor
+SDL2 — **not enabled** here.) `cargo test` needs SDL2 linkable; `cargo test`
+itself doesn't open a window; `cargo run` needs a display. **Not verified on
+Windows in this env.**
+
+### Portability notes
+
+- `.cargo/config.toml` `[env]` is **machine-specific**; committed only for this
+  Linux box; `force=false`.
+- **Persistence** (`tehtrys_settings.txt`, `tehtrys_scores.txt`,
+  `tehtrys_replay.txt`, `music/`): `~/.local/share/tehtrys`. Uses `$HOME`.
+  - **macOS:** `$HOME` set → `~/.local/share/tehtrys`. 
+  - **Windows:** `$HOME` often **unset** → falls back to `%TEMP%\tehtrys`; 
+    `USERPROFILE`/`APPDATA` are **not** currently checked. (No code change
+    *needed* to build; persistence location differs.)
+- Pure core, `forbid(unsafe_code)`, no extra deps → `core` portable everywhere.
+- Sound/music no licensed assets; optional `korobeiniki.wav`; works without an
+  audio device (`NullAudio` fallback; `SDL_AUDIODRIVER=dummy`).
 
 ## Docs
 
