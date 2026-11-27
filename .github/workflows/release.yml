@@ -188,7 +188,9 @@ jobs:
         run: |
           set -euo pipefail
           cargo build --release --locked --target x86_64-pc-windows-msvc --features bundled
-          cargo wix --target x86_64-pc-windows-msvc
+          # `cargo-wix` cannot forward cargo `--features`; build above with `bundled`, then use `--no-build`.
+          # `--nocapture` exposes any hidden cargo/candle/light output. `RUSTFLAGS=-Dwarnings` does not affect no-build.
+          cargo wix --target x86_64-pc-windows-msvc --no-build --nocapture
       - uses: actions/upload-artifact@v4
         with: { name: windows-msi, path: target/wix/*.msi }
       - name: GitHub Release

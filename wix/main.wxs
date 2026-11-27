@@ -31,10 +31,7 @@
         <File Id="korobeiniki.wav" Source="assets\audio\korobeiniki.wav" KeyPath="yes" />
       </Component>
       <Component Id="KorobeinikiCredits" Guid="*" Directory="KOROBEINIKI_AUDIO">
-        <File Id="CREDITS.md" Source="assets\audio\CREDITS.md" KeyPath="yes" />
-      </Component>
-      <Component Id="Credits" Guid="*">
-        <File Id="CREDITS.md" Source="assets\audio\CREDITS.md" KeyPath="yes" />
+        <File Id="KorobeinikiCreditsFile" Source="assets\audio\CREDITS.md" KeyPath="yes" />
       </Component>
       <Component Id="License" Guid="*">
         <File Id="LICENSE" Source="LICENSE" KeyPath="yes" />
