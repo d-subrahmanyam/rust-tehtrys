@@ -105,7 +105,7 @@ and the application state machine.
 - [x] **Phase 4** app state machine + menus; variants (Marathon/Sprint/Ultra);
       start level; lock-down mode; next-length/hold/ghost/mono; goal system;
       **high-score table + settings persistence** (custom text; no serde).
-- [x] **Phase 5** sound effects + Korobeiniki music slot (no licensed asset) +
+- [x] **Phase 5** sound effects + Korobeiniki music slot (`korobeiniki.wav` shipped converted PCM16; **separate Pixabay Content License** + attribution; can't verify; not The Tetris Company; original protected audio not shipped) +
       volume/toggle (`Audio` trait; procedural synth on SDL2 audio); key
       remapping UI + persisted; seeded-random + replay/determinism; high-score
       name entry; help/demo; settings persistence; robustness.

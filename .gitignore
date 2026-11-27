@@ -8,8 +8,11 @@ docs/tetris-design-guideline.md
 # IDE
 .idea/
 
-# user-provided audio; verify license before shipping (not committed)
+# ---- audio assets ----
+# `korobeiniki.wav` shipped converted PCM16 (third-party Pixabay; see assets/audio/CREDITS.md; NOT project-CC-BY-NC)
 /assets/audio/*
 !/assets/audio/.gitkeep
-# converted korobeiniki music (user-provided; license-check); not committed
-korobeiniki.wav
+!/assets/audio/korobeiniki.wav
+!/assets/audio/CREDITS.md
+# user-provided originals / converted copies (local); not committed
+/assets/audio/tetris-theme-korobeiniki-rearranged.mp3

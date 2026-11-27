@@ -1,7 +1,7 @@
 //! Sound. (§13.2 sound effects; §13.3 music; flows/12 render->audio seam)
 //!
 //! `core` stays pure; audio is presentation. We implement **procedural synthesis**
-//! (no licensed/protected assets, no external audio lib) on SDL2's built-in audio.
+//! original sound effects = procedural synthesis; `Korobeiniki` music slot ships separate third-party PCM16 `korobeiniki.wav` (Pixabay; see assets/audio/CREDITS; can't verify; not The Tetris Company); no external audio lib; SDL2 built-in audio.
 //! (The Phase-5 plan named `sdl2_mixer`, but that system lib isn't available; this
 //! satisfies the same `Audio`-trait requirement with zero extra dependency.)
 //!
@@ -45,18 +45,22 @@ pub enum SoundCue {
 }
 
 /// BGM slot. **No licensed asset shipped.** (§13.3) `Korobeiniki` is a *slot*:
-/// play a user-supplied `korobeiniki.wav` (PCM16) from the data `music/` dir if
-/// present; otherwise silent. Original protected audio is not reproduced.
+/// BGM slot. `Korobeiniki` ships a converted PCM16 `korobeiniki.wav`
+/// (`assets/audio/`), **third-party** source Pixabay
+/// `https://pixabay.com/music/search/korobeiniki/`; page labels **"no copyright
+/// music"** + **royalty-free**; **Pixabay Content License**, **separate**; not
+/// The Tetris Company; **not** project CC-BY-NC; **can't verify**; **not legal
+/// advice**; `<data>/music/` override; PCM16 WAV only; otherwise silent.
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub enum MusicSlot {
-    /// Classic Tetris-theme slot; no bundled audio. (§13.3; not a licensed asset)
+    /// Korobeiniki music slot. (§13.3; converted PCM16 `korobeiniki.wav`; see assets/audio/CREDITS; separate license)
     Korobeiniki,
     /// original synthesized / silent slot. no asset.
     Silent,
 }
 
 impl MusicSlot {
-    /// filename (if any) under `<data>/music/`. `None` => synthesized/silent.
+    /// filename; `<data>/music/` override, then bundled `assets/audio`. `None` => synthesized/silent.
     pub fn asset_filename(self) -> Option<&'static str> {
         match self {
             MusicSlot::Korobeiniki => Some("korobeiniki.wav"),
@@ -636,15 +640,23 @@ impl Audio for SdlAudio {
         if !self.settings.music_enabled {
             return;
         }
-        // no licensed asset shipped; load a user-provided PCM16 WAV if present.
         let Some(fname) = slot.asset_filename() else {
             return;
         };
-        let path = self.music_dir.join(fname);
-        let Ok(bytes) = std::fs::read(&path) else {
+        // search order: user `<data>/music` override, then bundled `assets/audio`, then repo assets.
+        // `korobeiniki.wav` shipped converted PCM16 (from Pixabay; see assets/audio/CREDITS; original
+        // MP3 NOT used). only PCM16 WAV honored (own parser; no sdl2_mixer; MP3 unsupported).
+        let candidates = [
+            self.music_dir.join(fname),
+            std::path::PathBuf::from("assets").join("audio").join(fname),
+            std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("assets")
+                .join("audio")
+                .join(fname),
+        ];
+        let Some(bytes) = candidates.iter().find_map(|p| std::fs::read(p).ok()) else {
             return;
         };
-        // no licensed asset shipped; only a user-provided PCM16 WAV is honored.
         let Some(wav) = parse_wav(&bytes) else { return };
         let samples: Vec<i16> = wav
             .to_mono_f32(self.sample_rate)
@@ -766,7 +778,7 @@ mod tests {
     }
 
     #[test]
-    fn korobeiniki_slot_no_asset_shipped() {
+    fn korobeiniki_slot_pcm16_wav() {
         assert_eq!(
             MusicSlot::Korobeiniki.asset_filename(),
             Some("korobeiniki.wav")

@@ -37,8 +37,20 @@ claim any rights to the Tetris name, logo, branding, or protected assets. Gamepl
 mechanics are implemented from the published rules in the **2009 Tetris Design
 Guideline** (© 2009 Blue Planet Software, Inc., marked CONFIDENTIAL); that source
 document is **not included or redistributed** here (kept local-only), and no
-proprietary artwork, audio (incl. Korobeiniki recordings), or protected marks are
-included.
-This license covers **only the original code in this repository**; it grants no
-rights to any third-party trademarks or source materials. A commercial/official
-Tetris product would require separate licensing.
+no proprietary artwork, audio, or protected marks **from The Tetris Company** are
+included. 
+This license covers **only original work by d-subrahmanyam**; it grants no rights
+to any third-party trademarks or source materials. A commercial/official Tetris
+product would require separate licensing. 
+
+**Third-party asset (separate license, NOT covered by CC BY-NC above):**
+`assets/audio/korobeiniki.wav` is a **Korobeiniki** music track, **not original**
+and **not The Tetris Company**. Original source **Pixabay**
+`https://pixabay.com/music/search/korobeiniki/` (page labels **"no copyright
+music"** / **royalty-free**); converted MP3→PCM16 WAV. Under **Pixabay Content
+License** (`https://pixabay.com/service/license-summary/`; full Terms; summary not
+binding), **separate** from this project license; attribution requested in
+`assets/audio/CREDITS.md`. Korobeiniki is a traditional melody, but
+**"rearranged"** + **"tetris-theme…"** + any third-party rights **can't be
+verified**; **not affiliated**; **non-commercial**; **not legal advice**. 
+(Own sound effects are original synthesis; no asset.)

@@ -25,7 +25,11 @@ presentation + variants/persistence + sound/remapping/replay. See [`docs/plan/`]
 >   protected-asset rights are claimed or granted.
 > - Gameplay mechanics are implemented from the published rules in the included
 >   **2009 Tetris Design Guideline** PDF; no proprietary artwork, audio, or marks
->   are reproduced. A commercial/official product would require separate licensing.
+>   are reproduced. **One separate third-party music asset**
+  (`assets/audio/korobeiniki.wav`, Pixabay Korobeiniki; see
+  [`assets/audio/CREDITS.md`](assets/audio/CREDITS.md); **not** The Tetris Company;
+  **separate Pixabay license**; can't verify) is shipped; original protected audio
+  is not. A commercial/official product would require separate licensing.
 
 ## License
 
@@ -141,7 +145,7 @@ Windows in this env.**
 - **CI gate** unchanged. 
 - **GitHub Release workflow:** [`.github/workflows/release.yml`](.github/workflows/release.yml) on `git tag vX.Y.Z` (+ `workflow_dispatch`); matrix `x86_64-unknown-linux-gnu`, `aarch64-apple-darwin`, `x86_64-pc-windows-msvc`; `--features bundled`; `cargo fmt --check`; packages `tehtrys-<ver>-<target>.{tar.gz,zip}` + `LICENSE`+`README`; `actions/upload-artifact` + `softprops/action-gh-release`; `permissions: contents: write`. **Not run here.** 
 - **Richer packaging:** **`cargo-dist`** (`cargo dist init`, generates release workflow + installers `.dmg`/`.msi`/`.tar.gz`/shell installers); `cross` for cross-compile; Docker image (`Dockerfile`); `cargo wix` (MSI); `appimagetool`. **Not shipped/verified.** 
-- **No protected art/audio** shipped; optional `korobeiniki.wav` user-supplied. **Non-commercial CC BY-NC 4.0.** 
+- **No The Tetris Company protected art/audio**; own synthesized SFX; **`korobeiniki.wav` shipped separately (Pixabay Content License; see CREDITS; can't verify; not The Tetris Company)**. **Non-commercial CC BY-NC 4.0** (original work; third-party asset separate). 
 
 ### CI extras
 
@@ -208,27 +212,37 @@ docker run --rm -v "$PWD:/work" -w /work -e CARGO_TARGET_DIR=/tmp/ct \
 
 #### Korobeiniki music slot — format, path, **license** 
 
-- **`MusicSlot::Korobeiniki`** plays **nothing unless a file is provided.** 
+- **`MusicSlot::Korobeiniki`**; ships **`korobeiniki.wav`** (see below). 
 - **Supported format: PCM16 (little-endian) WAV**, 44.1 kHz, mono preferred
-  (stereo mix-down + naive resample done; own `parse_wav`, **no `sdl2_mixer`**).
-  **MP3 is NOT supported.** 
-- **Required filename:** `korobeiniki.wav`. **Location:** `<data>/music/` =
-  `~/.local/share/tehtrys/music/korobeiniki.wav` (macOS same `$HOME`; Windows
-  `%TEMP%\tehtrys\music\` fallback; see persistence notes). **Not** `assets/audio`. 
-- **Convert** (e.g. your `assets/audio/tetris-theme-korobeiniki-rearranged.mp3`):
-  `ffmpeg -i in.mp3 -ac 1 -ar 44100 -c:a pcm_s16le korobeiniki.wav`. 
+  (stereo mix-down + naive resample; own `parse_wav`; **no `sdl2_mixer`**;
+  **MP3 NOT supported** — convert). 
+- **Filename:** `korobeiniki.wav`. **Search order:** `<data>/music/` override
+  (`~/.local/share/tehtrys/music/korobeiniki.wav`; Windows `%TEMP%` fallback)
+  **then bundled `assets/audio/korobeiniki.wav`.** 
+- **Shipped asset:** `assets/audio/korobeiniki.wav` = original **MP3**
+  `tetris-theme-korobeiniki-rearranged.mp3` converted `ffmpeg … -ac 1 -ar 44100
+  -c:a pcm_s16le`. **`parse_wav` verified.** Original MP3 **not** committed.
+  **Convert:** `ffmpeg -i in.mp3 -ac 1 -ar 44100 -c:a pcm_s16le korobeiniki.wav`. 
 - **Music toggle/volume:** Options → MUSIC / MUSIC VOLUME; `music_enabled`.
   `SDL_AUDIODRIVER=dummy` safe. 
-- ⚠️ **License — verify before shipping.** `tetris-theme-korobeiniki-rearranged.mp3`
-  **cannot be confirmed as licensed.** Korobeiniki is a traditional Russian folk
-  melody, but **"rearranged" implies arrangement copyright**, and **"Tetris theme"**
-  arrangements are **licensed by The Tetris Company**; this project is
-  **non-commercial CC-BY-NC**, ships **no protected audio**, and is **not affiliated**.
-  **Using a "tetris-theme…rearranged" track may violate copyright + trademark.**
-  Only use audio **you own** or have a license for (incl. CC-BY-NC redistribution).
-  **Not legal advice.** Original protected audio is **not** reproduced. 
-- **Honestly:** technically convertible + `parse_wav` verified (PCM16 mono 44100);
-  **audible output not verified** headless; **not committed** here.
+- **Source + attribution:** **Pixabay** `https://pixabay.com/music/search/korobeiniki/`;
+  page states **"3+ Korobeiniki no copyright music"** + **"no copyright"** +
+  **"Download korobeiniki royalty-free audio tracks and instrumentals for your
+  next project."** **Pixabay Content License** (`…/service/license-summary/`; full
+  Terms; summary not binding). Credits + terms in
+  [`assets/audio/CREDITS.md`](assets/audio/CREDITS.md). 
+- **License reconciliation:** `korobeiniki.wav` is **third-party, NOT original**
+  `tehtrys`, **NOT covered by project CC-BY-NC**; keeps own **Pixabay** terms
+  (free, no attribution required, modify; not standalone resale; recognizable
+  trademarks not commercial goods; not as trademark; check third-party). 
+  **Korobeiniki** traditional but **"rearranged"** + **"tetris-theme…"**;
+  **"Tetris"® The Tetris Company**; **not affiliated**; **not original protected
+  audio**; **non-commercial**. 
+- ⚠️ **Can't verify** specific asset + full Terms + third-party + The Tetris
+  Company; can't verify **audible** output headless. User confirmed Pixabay source
+  + wants attribution. **Not legal advice.** 
+- **Sound effects** are **original procedural synthesis**, no asset. 
+
 
 ## Docs
 
@@ -250,7 +264,7 @@ Implementation progress by phase. Commit ids link to this repo's `master`. See
 | **2 — SDL2 shell + input** | SDL2 window; fixed 60 Hz accumulator + dt clamp; keymap §4.1; own DAS/ARR; edge vs level; ignore SDL repeat; pause; focus auto-pause; restart; minimal render; event hooks | done | [`fb8571b`](https://github.com/d-subrahmanyam/rust-tehtrys/commit/fb8571b) |
 | **3 — Full presentation** | §2.4.7 HUD; Next 1-6; Hold; Ghost; colors; action notifications §13.1.5; line-clear + lock flash + hard-drop trail + level-up; Pause §13.1.6; Game Over; scaling; monochrome §3.2 (`M`); embedded 8×8 font (no `sdl2_ttf`); menu shells | done | [`40f4d41`](https://github.com/d-subrahmanyam/rust-tehtrys/commit/40f4d41) |
 | **4 — Variants, progression, persistence** | app state machine §2 + menus; Marathon/Sprint-40/Ultra-2:00; start level 1-15; Lock-Down mode §2.5.4; Next-length §2.5.1; Hold/Ghost toggles §2.5; Fixed/Variable goals §6; **high-score table** §11.2 + **settings persistence** (custom text, no serde); Game Over; end-rewards seam; 98 tests | done | [`7bcd4bb`](https://github.com/d-subrahmanyam/rust-tehtrys/commit/7bcd4bb) |
-| **5 — Polish** | **sound effects** §13.2 (`Audio` trait; procedural synth; no licensed assets; volume/toggle; mute); **music slot Korobeiniki §13.3** (no licensed asset; optional user WAV); **key remapping** §4.1 UI + persisted; settings robustness + atomic write; **seeded randomness** + **replay/determinism**; **high-score name entry** §11.2; **help + scoring demo + credits** §2.6/§8; **demo**; robustness; 117 tests | done | [`f087754`](https://github.com/d-subrahmanyam/rust-tehtrys/commit/f087754) |
+| **5 — Polish** | **sound effects** §13.2 (`Audio` trait; procedural synth; no licensed assets; volume/toggle; mute); **music slot Korobeiniki §13.3** (shipped converted `korobeiniki.wav`; **separate Pixabay Content License** + source attribution; can't verify; not The Tetris Company; `<data>/music` override; PCM16 only); **key remapping** §4.1 UI + persisted; settings robustness + atomic write; **seeded randomness** + **replay/determinism**; **high-score name entry** §11.2; **help + scoring demo + credits** §2.6/§8; **demo**; robustness; 117 tests | done | [`f087754`](https://github.com/d-subrahmanyam/rust-tehtrys/commit/f087754) |
 | **6 — Multiplayer seams** *(optional, not v1, **document-only**; **not built**)* | guideline Appendix B restated (line attack, counter attack, receiving queue, broken/solid, 8-line gap, Top Out §10.5, Extended §5.7, shared 7-bag order, practice, UI) + seams already in pure `core`; no multiplayer gameplay/networking | done (docs) | [`699423f`](https://github.com/d-subrahmanyam/rust-tehtrys/commit/699423f) |
 
 ### Cross-cutting status
@@ -266,7 +280,9 @@ Implementation progress by phase. Commit ids link to this repo's `master`. See
 ### Honest notes
 
 - **Not pixel-verified** (headless env); HUD/menus use embedded font; layout not screenshot-checked.
-- **Audio not verified audibly** in headless env; synth + event→cue mapping + WAV parsing are unit-tested; **no protected audio shipped**; `Korobeiniki` slot only plays a *user-supplied* `korobeiniki.wav`.
+- **Audio not verified audibly** in headless env; synth + event→cue mapping + WAV parsing are unit-tested; own sound effects are synthesized; `Korobeiniki` slot ships converted
+  `assets/audio/korobeiniki.wav` (**separate Pixabay license**; can't verify; see CREDITS)
+  + `<data>/music` override; **not The Tetris Company**; can't verify audible.
 - Phase-5 plan named `sdl2_mixer`, but that **system library isn't available here**; implemented `Audio` trait + procedural synth on **SDL2 built-in audio** (no extra dependency). 
 - High-score name entry, sound volumes, key remapping, seed, replay are **persisted** under `~/.local/share/tehtrys`. 
 - `restart` reuses current seed (deterministic); random-seed mode + replay supported.

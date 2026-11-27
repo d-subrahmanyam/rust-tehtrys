@@ -128,12 +128,12 @@ guideline goal examples verified (§6 L4→5=40 etc.); tests green.
 - **Sound effects** (§13.2 min + extra); `Audio` trait; toggle/volume; master mute.
   **Implementation note:** plan named `sdl2_mixer`, but that system library isn't
   available here; we implement an **`Audio` trait + procedural synthesis** on
-  SDL2's *built-in* audio (no extra dependency, **no licensed assets**). Pure
+  SDL2's *built-in* audio (no extra dependency; **sound effects original synthesis**; separate `Korobeiniki` music below). Pure
   `SoundCue` mapping `core` events→sound (tested); `NullAudio` fallback (headless);
   `SDL_AUDIODRIVER=dummy` safe. (`src/sound.rs`.)
-- **BGM**: **`MusicSlot::Korobeiniki`** slot; **not shipping protected audio**;
-  toggle/volume; a user-supplied PCM16 `korobeiniki.wav` in `<data>/music/` is
-  looped if present; otherwise silent. **[not shipping protected audio]** (§13.3).
+- **BGM**: **`MusicSlot::Korobeiniki`** slot; **`korobeiniki.wav` shipped converted PCM16 (third-party Pixabay; separate license; can't verify; not The Tetris Company; `<data>/music` override; no original protected audio)**;
+  toggle/volume; shipped converted PCM16 `assets/audio/korobeiniki.wav`; `<data>/music/`
+  override; falls back to silent if neither. **[third-party Pixabay asset; separate; can't verify; not The Tetris Company; original protected audio NOT shipped]** (§13.3).
 - **Settings** persistence (keys, options, volumes); **remapping UI** (§4.1
   `RemapTarget`, capture-a-key, clear/reset; persisted `key.*`); `Settings`
   roundtrip + robust parse; **atomic writes**. 
