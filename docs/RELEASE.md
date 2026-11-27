@@ -3,10 +3,10 @@
 **Not verified on GitHub** (can't run Actions here). **Not legal advice.** 
 
 ## Version & changelog
-- **Semver**; bump `Cargo.toml` `version`. Current `0.1.0`. **MSRV `rust-version="1.100"`.** 
+- **Semver**; bump `Cargo.toml` `version`. Current `1.0.0`. **MSRV `rust-version="1.100"`.** 
 - `cargo check` to sync `Cargo.lock` (committed). 
 - Add `CHANGELOG.md` entry under new version. 
-- **tag `vX.Y.Z`** matching `Cargo.toml`. 
+- **tag `vX.Y.Z`** matching `Cargo.toml`. **first stable `v1.0.0`.** 
 
 ## Gate (CI + local)
 ```sh
@@ -22,7 +22,7 @@ cargo audit
 ## Tag + push (GitHub token needs `workflow` scope + `contents: write`)
 ```sh
 git add -A && git commit -m "release vX.Y.Z"
-git tag -a vX.Y.Z -m "tehtrys vX.Y.Z"
+git tag -a vX.Y.Z -m "tehtrys vX.Y.Z"   # e.g. v1.0.0
 git push origin master
 git push origin vX.Y.Z              # triggers .github/workflows/release.yml
 ```

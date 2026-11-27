@@ -253,6 +253,23 @@ docker run --rm -v "$PWD:/work" -w /work -e CARGO_TARGET_DIR=/tmp/ct \
   and git-ignored (`docs/2009 Tetris Design Guideline.pdf`, plus optional local
   restatement). Mechanics are restated in my own `docs/plan/`.
 
+## Releases
+
+**Prebuilt releases on GitHub:** [`d-subrahmanyam/rust-tehtrys` Releases](https://github.com/d-subrahmanyam/rust-tehtrys/releases). **`v1.0.0`** (first stable; supersedes `v0.1.0`). 
+
+**Downloads per tag** (`v*`):
+- **Archives**: `tehtrys-X.Y.Z-x86_64-unknown-linux-gnu.tar.gz`, `tehtrys-X.Y.Z-x86_64-unknown-linux-musl.tar.gz` (**static, no glibc**), `tehtrys-X.Y.Z-aarch64-apple-darwin.tar.gz`, `tehtrys-X.Y.Z-x86_64-pc-windows-msvc.zip`; each + `LICENSE`+`README`+`CHANGELOG`+`korobeiniki.wav`+`CREDITS`. 
+- **Installers**: **macOS `.dmg`**, **Windows `.msi`** (`cargo-wix`), **Ubuntu `.dpkg`** (`cargo-deb`; flatpak alt), built by `release.yml`. 
+- **GitHub auto**: `Source code (zip)` + `Source code (tar.gz)`. 
+
+**Build from source instead** (anywhere; no prebuilt needed): see [Build & test](#build--test). 
+```sh
+git clone https://github.com/d-subrahmanyam/rust-tehtrys && cd rust-tehtrys
+cargo build --release --locked            # + SDL2; or `--features bundled` (cmake); `x86_64-unknown-linux-musl` static
+cargo run
+```
+**Cutting a release:** [`docs/RELEASE.md`](docs/RELEASE.md) + `.github/workflows/release.yml`. **Not verified on GitHub; `v1.0.0`.** **Non-commercial CC-BY-NC-4.0**; `korobeiniki.wav` third-party CC-BY-NC; not legal advice. 
+
 ## Status
 
 **Badge legend:** 🟢 **passing** (`cargo fmt` + `clippy -D warnings` + `cargo test` green; **117 tests**) · 🟡 **running / pending** (CI in progress, amber in the Actions tab; not a failure) · 🔴 **failing** · ⚪ **no status** (no runs yet). **`CI`** is a **live** GitHub Actions badge (`actions/workflows/ci.yml/badge.svg`); `tests`/`clippy`/`rustfmt` are static `shields.io` badges reflecting the current committed state. `tests` count = `cargo test` total (101 lib + 16 integration).

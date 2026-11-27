@@ -1,6 +1,6 @@
 [package]
 name = "tehtrys"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2024"
 rust-version = "1.100"            # MSRV; edition 2024. CI pins/checks.
 license = "CC-BY-NC-4.0"          # non-commercial educational; see LICENSE. (not legal advice)
@@ -37,4 +37,25 @@ strip = "symbols"          # strip debuginfo in shipped binaries (not unsafe; co
 # keep dev/test fast
 [profile.dev]
 opt-level = 0
+
+# ---------- installers ----------
+# `cargo deb` (Ubuntu `.dpkg`). [metadata.deb]. not verified.
+[package.metadata.deb]
+maintainer = "d-subrahmanyam"
+license-file = "LICENSE"
+depends = "$auto"
+section = "games"
+priority = "optional"
+# ship native + `korobeiniki.wav` + CREDITS; SDL2 statically linked (`bundled`).
+assets = [
+    ["target/release/tehtrys", "usr/bin/tehtrys", "755"],
+    ["assets/audio/korobeiniki.wav", "usr/share/tehtrys/music/korobeiniki.wav", "644"],
+    ["assets/audio/CREDITS.md", "usr/share/doc/tehtrys/CREDITS.md", "644"],
+    ["README.md", "usr/share/doc/tehtrys/README.md", "644"],
+    ["CHANGELOG.md", "usr/share/doc/tehtrys/CHANGELOG.md", "644"],
+    ["LICENSE", "usr/share/doc/tehtrys/LICENSE", "644"],
+]
+
+# `cargo wix` (Windows `.msi`). see wix/main.wxs. not verified.
+[package.metadata.wix]
 

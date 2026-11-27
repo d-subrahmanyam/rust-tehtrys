@@ -26,6 +26,10 @@ jobs:
             target: x86_64-unknown-linux-gnu
             pkg: tar.gz
             bin: tehtrys
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl    # static; no glibc dependency. needs musl-tools.
+            pkg: tar.gz
+            bin: tehtrys
           - os: macos-latest
             target: aarch64-apple-darwin     # Apple Silicon; add x86_64-apple-darwin for Intel
             pkg: tar.gz
@@ -62,6 +66,11 @@ jobs:
         run: cargo fmt --check
       # full fmt/clippy/test gating lives in ci.yml; release only packages.
       # `--features bundled` supplies SDL2 itself, so no system SDL2 needed on the runner. 
+
+      - name: musl-tools (linux-musl target)
+        if: matrix.target == 'x86_64-unknown-linux-musl'
+        shell: bash
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
 
       # test gate (release also tests bundled SDL2 build); CI adds clippy + deny + audit.
       - name: test (bundled)
@@ -110,3 +119,101 @@ jobs:
             tehtrys-*.tar.gz
             tehtrys-*.zip
           generate_release_notes: true
+
+  # ============ installers (in addition to archives). NOT verified. ============
+
+  # ---- macOS .dmg (+ .app). `create-dmg`. ----
+  dmg:
+    name: installer macOS (.dmg)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { targets: aarch64-apple-darwin }
+      - uses: Swatinem/rust-cache@v2
+      - name: remove local cargo env
+        run: rm -f .cargo/config.toml
+      - uses: lukka/get-cmake@latest
+      - name: build
+        run: cargo build --release --locked --target aarch64-apple-darwin --features bundled
+      - name: create .app + .dmg
+        run: |
+          set -euo pipefail
+          app="tehtrys.app/Contents/MacOS"
+          mkdir -p "$app" tehtrys.app/Contents/Resources
+          cp target/aarch64-apple-darwin/release/tehtrys "$app/tehtrys"
+          cat > tehtrys.app/Contents/Info.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>CFBundleName</key><string>tehtrys</string>
+            <key>CFBundleDisplayName</key><string>tehtrys</string>
+            <key>CFBundleExecutable</key><string>tehtrys</string>
+            <key>CFBundleIdentifier</key><string>com.dsubrahmanyam.tehtrys</string>
+            <key>CFBundlePackageType</key><string>APPL</string>
+            <key>CFBundleShortVersionString</key><string>${GITHUB_REF_NAME#v}</string>
+          </dict></plist>
+          PLIST
+          mkdir -p "$app/../Resources/assets/audio"
+          cp assets/audio/korobeiniki.wav assets/audio/CREDITS.md "$app/../Resources/assets/audio/" 2>/dev/null || true
+          brew install create-dmg || true
+          create-dmg --volname "tehtrys" --app-drop-link 300 200 "tehtrys-${GITHUB_REF_NAME#v}.dmg" tehtrys.app ||             hdiutil create -volname tehtrys -srcfolder tehtrys.app -ov -format UDZO "tehtrys-${GITHUB_REF_NAME#v}.dmg"
+      - uses: actions/upload-artifact@v4
+        with: { name: macos-dmg, path: tehtrys-*.dmg }
+      - name: GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with: { files: tehtrys-*.dmg }
+
+  # ---- Windows .msi (`cargo-wix` WiX). ----
+  msi:
+    name: installer Windows (.msi)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with: { targets: x86_64-pc-windows-msvc }
+      - uses: Swatinem/rust-cache@v2
+      - name: remove local cargo env
+        shell: bash
+        run: rm -f .cargo/config.toml
+      - uses: lukka/get-cmake@latest
+      - name: install WiX + cargo-wix
+        shell: pwsh
+        run: |
+          choco install wixtoolset -y || echo "wix already present"
+          cargo install cargo-wix --locked
+      - name: build + msi
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo build --release --locked --target x86_64-pc-windows-msvc --features bundled
+          cargo wix --target x86_64-pc-windows-msvc
+      - uses: actions/upload-artifact@v4
+        with: { name: windows-msi, path: target/wix/*.msi }
+      - name: GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with: { files: target/wix/*.msi }
+
+  # ---- Ubuntu .dpkg (`cargo-deb`).  [flatpak alternative noted in docs.] ----
+  deb:
+    name: installer Ubuntu (.dpkg)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: remove local cargo env
+        run: rm -f .cargo/config.toml
+      - uses: lukka/get-cmake@latest
+      - name: install cargo-deb
+        run: cargo install cargo-deb --locked
+      - name: cargo deb (bundled SDL2)
+        run: cargo deb --features bundled
+      - uses: actions/upload-artifact@v4
+        with: { name: ubuntu-deb, path: target/debian/*.deb }
+      - name: GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with: { files: target/debian/*.deb }

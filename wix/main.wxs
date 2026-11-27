@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- cargo-wix .msi. `cargo install cargo-wix && cargo wix`. NOT verified. WiX v3. -->
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="tehtrys" Language="1033" Version="1.0.0" Manufacturer="d-subrahmanyam"
+           UpgradeCode="11111111-2222-3333-4444-555555555555">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+    <Feature Id="ProductFeature" Title="tehtrys" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+    <!-- non-commercial CC-BY-NC; not affiliated The Tetris Company -->
+  </Product>
+  <Fragment>
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="tehtrys" />
+      </Directory>
+    </Directory>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      <Component Id="TehtrysExe" Guid="*">
+        <File Id="tehtrys.exe" Source="$(var.CargoTargetBinDir)\tehtrys.exe" KeyPath="yes" />
+      </Component>
+      <Component Id="KorobeinikiWav" Guid="*">
+        <File Id="korobeiniki.wav" Source="assets\audio\korobeiniki.wav" KeyPath="yes" />
+      </Component>
+      <Component Id="Credits" Guid="*">
+        <File Id="CREDITS.md" Source="assets\audio\CREDITS.md" KeyPath="yes" />
+      </Component>
+      <Component Id="License" Guid="*">
+        <File Id="LICENSE" Source="LICENSE" KeyPath="yes" />
+      </Component>
+    </ComponentGroup>
+  </Fragment>
+</Wix>

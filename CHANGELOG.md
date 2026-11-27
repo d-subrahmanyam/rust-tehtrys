@@ -6,6 +6,10 @@ All notable changes. **Non-commercial educational.** Project original work **CC-
 
 - (next) 
 
+## [1.0.0] — first stable release
+
+*(tehtrys v1.0.0; built on v0.1.0.)*
+
 ## [0.1.0] — first release
 
 **Tetris, faithful 2009 Guideline mechanics, non-commercial educational.**
@@ -31,5 +35,6 @@ All notable changes. **Non-commercial educational.** Project original work **CC-
 - **Release** `.github/workflows/release.yml` tag `v*`; `bundled`; package; see `docs/RELEASE.md`. 
 - **CC BY-NC 4.0** + disclaimer; source guideline not distributed; no The-Tetris-Company protected assets; `korobeiniki.wav` third-party CC-BY-NC. 
 
-[Unreleased]: https://github.com/d-subrahmanyam/rust-tehtrys/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/d-subrahmanyam/rust-tehtrys/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/d-subrahmanyam/rust-tehtrys/releases/tag/v1.0.0
 [0.1.0]: https://github.com/d-subrahmanyam/rust-tehtrys/releases/tag/v0.1.0
