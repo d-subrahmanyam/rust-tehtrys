@@ -7,8 +7,6 @@
 [![rustfmt](https://img.shields.io/badge/rustfmt-clean-brightgreen)](https://github.com/d-subrahmanyam/rust-tehtrys)
 [![forbid unsafe](https://img.shields.io/badge/forbid%20unsafe-code-brightgreen)](https://github.com/d-subrahmanyam/rust-tehtrys)
 
-**Badge legend:** 🟢 **passing** (`cargo fmt` + `clippy -D warnings` + `cargo test` green; **117 tests**) · 🟡 **running / pending** (CI in progress, amber in the Actions tab; not a failure) · 🔴 **failing** · ⚪ **no status** (no runs yet). **`CI`** is a **live** GitHub Actions badge (`actions/workflows/ci.yml/badge.svg`); `tests`/`clippy`/`rustfmt` are static `shields.io` badges reflecting the current committed state. `tests` count = `cargo test` total (101 lib + 16 integration). 
-
 
 A **Tetris** game in Rust (edition 2024), built to faithfully implement the official
 **2009 Tetris Design Guideline** mechanics. **Phases 0-5 done**: pure deterministic core engine + SDL2 desktop shell + full
@@ -256,6 +254,9 @@ docker run --rm -v "$PWD:/work" -w /work -e CARGO_TARGET_DIR=/tmp/ct \
   restatement). Mechanics are restated in my own `docs/plan/`.
 
 ## Status
+
+**Badge legend:** 🟢 **passing** (`cargo fmt` + `clippy -D warnings` + `cargo test` green; **117 tests**) · 🟡 **running / pending** (CI in progress, amber in the Actions tab; not a failure) · 🔴 **failing** · ⚪ **no status** (no runs yet). **`CI`** is a **live** GitHub Actions badge (`actions/workflows/ci.yml/badge.svg`); `tests`/`clippy`/`rustfmt` are static `shields.io` badges reflecting the current committed state. `tests` count = `cargo test` total (101 lib + 16 integration).
+
 
 Implementation progress by phase. Commit ids link to this repo's `master`. See
 [docs/plan/07-phases.md](docs/plan/07-phases.md) for full detail.
