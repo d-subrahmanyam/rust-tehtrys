@@ -1,0 +1,44 @@
+# Release process — `tehtrys`
+
+**Not verified on GitHub** (can't run Actions here). **Not legal advice.** 
+
+## Version & changelog
+- **Semver**; bump `Cargo.toml` `version`. Current `0.1.0`. **MSRV `rust-version="1.100"`.** 
+- `cargo check` to sync `Cargo.lock` (committed). 
+- Add `CHANGELOG.md` entry under new version. 
+- **tag `vX.Y.Z`** matching `Cargo.toml`. 
+
+## Gate (CI + local)
+```sh
+cargo fmt --check
+cargo clippy --all-targets -- -D warnings
+cargo test --locked                 # 117
+cargo test --locked --features bundled   # release also tests bundled SDL2 (needs cmake)
+cargo deny check                    # deny.toml (incl CC-BY-NC-4.0)
+cargo audit
+```
+**RUSTFLAGS=-Dwarnings.** 
+
+## Tag + push (GitHub token needs `workflow` scope + `contents: write`)
+```sh
+git add -A && git commit -m "release vX.Y.Z"
+git tag -a vX.Y.Z -m "tehtrys vX.Y.Z"
+git push origin master
+git push origin vX.Y.Z              # triggers .github/workflows/release.yml
+```
+**Hit invalid token?** `unset GITHUB_TOKEN` / `env -u GITHUB_TOKEN`, or `gh auth refresh -s workflow`, `gh auth setup-git`. 
+
+## `release.yml`
+- `on push tag v*` + `workflow_dispatch`; `contents: write`. 
+- matrix linux/macos/windows; `rm .cargo/config.toml`; `lukka/get-cmake`. 
+- `cargo fmt --check`; `cargo test --locked --features bundled`; `cargo build --release --locked --target … --features bundled`. 
+- package `tehtrys-<ver>-<target>.{tar.gz,zip}` + `LICENSE`+`README`+`CHANGELOG`+`korobeiniki.wav`+`CREDITS`; `upload-artifact`+`gh-release`. 
+- **`--features bundled`** SDL2 self-contained (not verified); else system SDL2 + ship shared lib. 
+
+## Artifacts / contents
+- native `tehtrys`/`tehtrys.exe`. 
+- **`korobeiniki.wav`** (PCM16; third-party CC-BY-NC classicals.de; `CREDITS.md` + attribution; non-commercial; can't verify). 
+
+## Not shipped / note
+- no The-Tetris-Company protected art/audio; **not affiliated**; own SFX synth; **non-commercial**. 
+- `cargo-dist`, `cargo wix`, `.dmg`/`.msi`, app stores **not** shipped. 

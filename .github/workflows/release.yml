@@ -63,6 +63,11 @@ jobs:
       # full fmt/clippy/test gating lives in ci.yml; release only packages.
       # `--features bundled` supplies SDL2 itself, so no system SDL2 needed on the runner. 
 
+      # test gate (release also tests bundled SDL2 build); CI adds clippy + deny + audit.
+      - name: test (bundled)
+        shell: bash
+        run: cargo test --locked --target ${{ matrix.target }} --features bundled
+
       - name: build release
         shell: bash
         run: cargo build --release --locked --target ${{ matrix.target }} --features bundled
@@ -76,7 +81,7 @@ jobs:
           bin="target/${{ matrix.target }}/release/${{ matrix.bin }}"
           mkdir -p dist
           cp "$bin" dist/ 2>/dev/null || cp "$bin" dist/
-          cp LICENSE README.md dist/
+          cp LICENSE README.md CHANGELOG.md dist/ 2>/dev/null || cp LICENSE README.md dist/
           mkdir -p dist/assets/audio
           cp assets/audio/korobeiniki.wav assets/audio/CREDITS.md dist/assets/audio/ 2>/dev/null || true
           if [ "${{ matrix.pkg }}" = "tar.gz" ]; then
