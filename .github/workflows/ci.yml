@@ -125,7 +125,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # `kiri` is Docker-compatible; on GitHub prefer `docker`. kiri not preinstalled on runners.
-      # `kiri build -t tehtrys-ci .` locally. Here use docker for parity with `docker` job.
-      - name: kiri-compatible build via docker
-        run: docker build -t tehtrys-ci-kiri .
+      # `kiri` is Docker-compatible; kiri not preinstalled on GitHub runners -> fall back to docker.
+      # locally `kiri build -t tehtrys-ci .` (verified); `kiri build-with` etc. See README.
+      - name: kiri build (fallback docker)
+        shell: bash
+        run: if command -v kiri >/dev/null 2>&1; then kiri build -t tehtrys-ci .; else docker build -t tehtrys-ci .; fi
