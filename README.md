@@ -38,6 +38,13 @@ presentation + variants/persistence + sound/remapping/replay. See [`docs/plan/`]
   - deterministic (seedable PRNG; integer ms; injectable time).
 - `#![forbid(unsafe_code)]`.
 
+## Screenshots
+
+| | |
+|---|---|
+| **Opening / title**<br>![tehtrys opening screen](assets/images/tehtrys-opening-screen.png) | **Main menu**<br>![tehtrys main menu](assets/images/tehtrys-main-menu.png) |
+| **Gameplay**<br>![tehtrys gameplay](assets/images/tehtrys-game-play-01.png) | **Gameplay**<br>![tehtrys gameplay](assets/images/tehtrys-game-play-02.png) |
+
 ## Build & test
 
 ```sh
