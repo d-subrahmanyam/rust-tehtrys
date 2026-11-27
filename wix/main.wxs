@@ -23,8 +23,10 @@
     </Directory>
   </Fragment>
   <Fragment>
-    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
-      <Component Id="TehtrysExe" Guid="*">
+    <!-- `ComponentGroup/@Directory` cannot be combined with `Component/@Directory`;
+         put `Directory` on each `Component` instead. -->
+    <ComponentGroup Id="ProductComponents">
+      <Component Id="TehtrysExe" Guid="*" Directory="INSTALLFOLDER">
         <File Id="tehtrys.exe" Source="$(var.CargoTargetBinDir)\tehtrys.exe" KeyPath="yes" />
       </Component>
       <Component Id="KorobeinikiWav" Guid="*" Directory="KOROBEINIKI_AUDIO">
@@ -33,7 +35,7 @@
       <Component Id="KorobeinikiCredits" Guid="*" Directory="KOROBEINIKI_AUDIO">
         <File Id="KorobeinikiCreditsFile" Source="assets\audio\CREDITS.md" KeyPath="yes" />
       </Component>
-      <Component Id="License" Guid="*">
+      <Component Id="License" Guid="*" Directory="INSTALLFOLDER">
         <File Id="LICENSE" Source="LICENSE" KeyPath="yes" />
       </Component>
     </ComponentGroup>
