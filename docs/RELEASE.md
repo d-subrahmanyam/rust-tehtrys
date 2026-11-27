@@ -3,10 +3,10 @@
 **Not verified on GitHub** (can't run Actions here). **Not legal advice.** 
 
 ## Version & changelog
-- **Semver**; bump `Cargo.toml` `version`. Current `1.0.0`. **MSRV `rust-version="1.100"`.** 
+- **Semver**; bump `Cargo.toml` `version`. Current `1.0.1`. **MSRV `rust-version="1.100"`.** 
 - `cargo check` to sync `Cargo.lock` (committed). 
 - Add `CHANGELOG.md` entry under new version. 
-- **tag `vX.Y.Z`** matching `Cargo.toml`. **first stable `v1.0.0`.** 
+- **tag `vX.Y.Z`** matching `Cargo.toml`. **first stable `v1.0.0`; `v1.0.1` installer-quality fixes.** 
 
 ## Gate (CI + local)
 ```sh

@@ -1,6 +1,6 @@
 [package]
 name = "tehtrys"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 rust-version = "1.100"            # MSRV; edition 2024. CI pins/checks.
 license = "CC-BY-NC-4.0"          # non-commercial educational; see LICENSE. (not legal advice)

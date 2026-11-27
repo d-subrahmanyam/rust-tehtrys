@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- cargo-wix .msi. `cargo install cargo-wix && cargo wix`. NOT verified. WiX v3. -->
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
-  <Product Id="*" Name="tehtrys" Language="1033" Version="1.0.0" Manufacturer="d-subrahmanyam"
+  <Product Id="*" Name="tehtrys" Language="1033" Version="1.0.1" Manufacturer="d-subrahmanyam"
            UpgradeCode="11111111-2222-3333-4444-555555555555">
     <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
