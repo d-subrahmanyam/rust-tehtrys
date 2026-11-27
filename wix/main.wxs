@@ -3,7 +3,7 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
   <Product Id="*" Name="tehtrys" Language="1033" Version="1.0.1" Manufacturer="d-subrahmanyam"
            UpgradeCode="11111111-2222-3333-4444-555555555555">
-    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" Platform="x64" />
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
     <MediaTemplate EmbedCab="yes" />
     <Feature Id="ProductFeature" Title="tehtrys" Level="1">
@@ -13,7 +13,7 @@
   </Product>
   <Fragment>
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFilesFolder">
+      <Directory Id="ProgramFiles64Folder">
         <Directory Id="INSTALLFOLDER" Name="tehtrys">
           <Directory Id="KOROBEINIKI_DIR" Name="assets">
             <Directory Id="KOROBEINIKI_AUDIO" Name="audio" />
@@ -26,16 +26,16 @@
     <!-- `ComponentGroup/@Directory` cannot be combined with `Component/@Directory`;
          put `Directory` on each `Component` instead. -->
     <ComponentGroup Id="ProductComponents">
-      <Component Id="TehtrysExe" Guid="*" Directory="INSTALLFOLDER">
+      <Component Id="TehtrysExe" Guid="*" Win64="yes" Directory="INSTALLFOLDER">
         <File Id="tehtrys.exe" Source="$(var.CargoTargetBinDir)\tehtrys.exe" KeyPath="yes" />
       </Component>
-      <Component Id="KorobeinikiWav" Guid="*" Directory="KOROBEINIKI_AUDIO">
+      <Component Id="KorobeinikiWav" Guid="*" Win64="yes" Directory="KOROBEINIKI_AUDIO">
         <File Id="korobeiniki.wav" Source="assets\audio\korobeiniki.wav" KeyPath="yes" />
       </Component>
-      <Component Id="KorobeinikiCredits" Guid="*" Directory="KOROBEINIKI_AUDIO">
+      <Component Id="KorobeinikiCredits" Guid="*" Win64="yes" Directory="KOROBEINIKI_AUDIO">
         <File Id="KorobeinikiCreditsFile" Source="assets\audio\CREDITS.md" KeyPath="yes" />
       </Component>
-      <Component Id="License" Guid="*" Directory="INSTALLFOLDER">
+      <Component Id="License" Guid="*" Win64="yes" Directory="INSTALLFOLDER">
         <File Id="LICENSE" Source="LICENSE" KeyPath="yes" />
       </Component>
     </ComponentGroup>
