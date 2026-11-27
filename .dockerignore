@@ -4,5 +4,8 @@
 # local-only reference materials (not distributed)
 docs/2009 Tetris Design Guideline.pdf
 docs/tetris-design-guideline.md
-# artifacts not needed in image
+# artifacts not needed in image; KEEP shipped korobeiniki.wav music + credits
 assets
+!assets/audio
+!assets/audio/korobeiniki.wav
+!assets/audio/CREDITS.md

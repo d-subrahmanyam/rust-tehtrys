@@ -77,6 +77,8 @@ jobs:
           mkdir -p dist
           cp "$bin" dist/ 2>/dev/null || cp "$bin" dist/
           cp LICENSE README.md dist/
+          mkdir -p dist/assets/audio
+          cp assets/audio/korobeiniki.wav assets/audio/CREDITS.md dist/assets/audio/ 2>/dev/null || true
           if [ "${{ matrix.pkg }}" = "tar.gz" ]; then
             tar -czf "${name}.tar.gz" -C dist .
           else
