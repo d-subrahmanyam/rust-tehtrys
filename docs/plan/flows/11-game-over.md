@@ -54,4 +54,9 @@ blocked spawn (Block Out) or full lock above (Lock Out) is.
   same §11 events, distinguished from Game Over.
 
 ## Reason enum
-`GameOverReason::{ LockOut, BlockOut, TopOut }`. 
+`GameOverReason::{ LockOut, BlockOut, TopOut }`.
+
+## Phase-6 (not built)
+
+`TopOut` (§10.5) is a **seam**, not emitted in v1 single-player; multiplayer
+garbage → top-out would set it. See [appendices/E-multiplayer-seams.md](../appendices/E-multiplayer-seams.md).

@@ -157,13 +157,24 @@ unit-tested; rendering not pixel-verified.)*
 
 ---
 
-## Phase 6 — Multiplayer seams (optional, not v1)
+## Phase 6 — Multiplayer seams (optional, not v1)  ✅ **done (document-only)**
 
-Document-only for v1; design keeps seams. Guideline **Appendix B**:
+**Document-only for v1; design keeps seams. NOT built.** See
+[appendices/E-multiplayer-seams.md](appendices/E-multiplayer-seams.md). Guideline
+**Appendix B** (original §B1*; my local restatement §16*; restated not copied;
+source not distributed):
 
-- Line Attack tables (§B1.3.5); Counter Attacks (§B1.3.6); Receiving Queue;
-  broken/solid lines; gap randomness (8-line); Top Out (§10.5); Extended required
-  (§5.7); shared tetrimino order (§B1.2); practice mode; UI (§B1.4). **Not built.**
+- Line Attack tables (§B1.3.5 / §16.4); Counter Attacks (§B1.3.6 / §16.5);
+  Receiving Queue; broken/solid lines; gap randomness (**8-line** `GAP_PERIOD`);
+  **Top Out** (§10.5); **Extended required** (§5.7); **shared tetrimino order**
+  (§B1.2 / §16.2); practice mode; UI (§B1.4 / §16.6). **Not built.**
+
+Seams kept (not wired): `GameOverReason::TopOut`; `LockRuleset::Extended` default;
+10×20+20 buffer; pure `GameCommand`/`EngineEvent`; deterministic 7-bag + seedable
+PRNG + shared seed; `ScoreAction::{is_b2b_qualifying,clears_line,breaks_b2b}` +
+`EngineEvent::Scored`; `lock_now`→spawn hook for garbage; `Game`/`Variant`;
+`forbid(unsafe_code)`, integer-ms, no wall-clock. No garbage/`insert_garbage`,
+no `Multiplayer` `Variant`, no networking/UI. Possible future order in appendix E.
 
 ---
 

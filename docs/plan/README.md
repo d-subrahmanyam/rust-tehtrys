@@ -89,6 +89,7 @@ and the application state machine.
 | [appendices/B-piece-data.md](appendices/B-piece-data.md) | Explicit per-orientation cell data for all 7 tetriminos; colors; spawn placement |
 | [appendices/C-fall-speed-table.md](appendices/C-fall-speed-table.md) | Fall speed formula + level table; soft/hard drop; DAS/ARR; timing constants |
 | [appendices/D-glossary.md](appendices/D-glossary.md) | Tetris terminology used by this plan (from guideline §1.4/§14) |
+| [appendices/E-multiplayer-seams.md](appendices/E-multiplayer-seams.md) | Phase 6: guideline Appendix B multiplayer (restated) + seams in `core`; **document-only, not v1, not built** |
 
 ## Implementation status
 
@@ -108,6 +109,9 @@ and the application state machine.
       volume/toggle (`Audio` trait; procedural synth on SDL2 audio); key
       remapping UI + persisted; seeded-random + replay/determinism; high-score
       name entry; help/demo; settings persistence; robustness.
+- [x] **Phase 6** *(optional, not v1, **document-only**; **not built**)*
+      multiplayer seams: guideline Appendix B restated + seams already kept; see
+      [appendices/E-multiplayer-seams.md](appendices/E-multiplayer-seams.md).
 
 ## Recommended reading order
 
