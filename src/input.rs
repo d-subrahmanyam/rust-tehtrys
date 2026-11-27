@@ -54,6 +54,8 @@ pub enum Key {
     Enter,
     /// delete previous char. (name entry)
     Backspace,
+    /// any other physical key by name (for key remapping; not gameplay defaults).
+    Char(char),
 }
 
 /// Key bindings. (§4.1; our defaults; remappable)
@@ -314,35 +316,36 @@ impl RemapTarget {
 
 impl Key {
     /// stable text name for persistence.
-    pub fn name(self) -> &'static str {
+    pub fn name(self) -> String {
         match self {
-            Key::Left => "Left",
-            Key::Right => "Right",
-            Key::Down => "Down",
-            Key::Space => "Space",
-            Key::Up => "Up",
-            Key::X => "X",
-            Key::Z => "Z",
-            Key::LeftCtrl => "LeftCtrl",
-            Key::C => "C",
-            Key::LeftShift => "LeftShift",
-            Key::Numpad0 => "Numpad0",
-            Key::Numpad2 => "Numpad2",
-            Key::Numpad4 => "Numpad4",
-            Key::Numpad5 => "Numpad5",
-            Key::Numpad6 => "Numpad6",
-            Key::Numpad8 => "Numpad8",
-            Key::Numpad1 => "Numpad1",
-            Key::Numpad3 => "Numpad3",
-            Key::Numpad7 => "Numpad7",
-            Key::Numpad9 => "Numpad9",
-            Key::Escape => "Escape",
-            Key::F1 => "F1",
-            Key::R => "R",
-            Key::Q => "Q",
-            Key::M => "M",
-            Key::Enter => "Enter",
-            Key::Backspace => "Backspace",
+            Key::Left => "Left".into(),
+            Key::Right => "Right".into(),
+            Key::Down => "Down".into(),
+            Key::Space => "Space".into(),
+            Key::Up => "Up".into(),
+            Key::X => "X".into(),
+            Key::Z => "Z".into(),
+            Key::LeftCtrl => "LeftCtrl".into(),
+            Key::C => "C".into(),
+            Key::LeftShift => "LeftShift".into(),
+            Key::Numpad0 => "Numpad0".into(),
+            Key::Numpad2 => "Numpad2".into(),
+            Key::Numpad4 => "Numpad4".into(),
+            Key::Numpad5 => "Numpad5".into(),
+            Key::Numpad6 => "Numpad6".into(),
+            Key::Numpad8 => "Numpad8".into(),
+            Key::Numpad1 => "Numpad1".into(),
+            Key::Numpad3 => "Numpad3".into(),
+            Key::Numpad7 => "Numpad7".into(),
+            Key::Numpad9 => "Numpad9".into(),
+            Key::Escape => "Escape".into(),
+            Key::F1 => "F1".into(),
+            Key::R => "R".into(),
+            Key::Q => "Q".into(),
+            Key::M => "M".into(),
+            Key::Enter => "Enter".into(),
+            Key::Backspace => "Backspace".into(),
+            Key::Char(c) => format!("Char:{}", c.to_ascii_uppercase()),
         }
     }
     pub fn from_name(s: &str) -> Option<Key> {
@@ -374,11 +377,19 @@ impl Key {
             "M" => Key::M,
             "Enter" => Key::Enter,
             "Backspace" => Key::Backspace,
-            _ => return None,
+            _ => {
+                if let Some(rest) = s.strip_prefix("Char:") {
+                    let mut ch = rest.chars();
+                    if let (Some(c), None) = (ch.next(), ch.next()) {
+                        return Some(Key::Char(c.to_ascii_uppercase()));
+                    }
+                }
+                return None;
+            }
         })
     }
     /// human label for display.
-    pub fn label(self) -> &'static str {
+    pub fn label(self) -> String {
         self.name()
     }
 }
@@ -506,9 +517,13 @@ mod remap_tests {
             Key::Backspace,
         ];
         for k in all {
-            assert_eq!(Key::from_name(k.name()), Some(k), "roundtrip {k:?}");
+            assert_eq!(Key::from_name(&k.name()), Some(k), "roundtrip {k:?}");
         }
         assert_eq!(Key::from_name("nope"), None);
+        // arbitrary physical key remapping.
+        let c = Key::Char('A');
+        assert_eq!(Key::from_name(&c.name()), Some(c));
+        assert_eq!(c.name(), "Char:A");
     }
 
     #[test]

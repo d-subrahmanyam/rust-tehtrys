@@ -845,7 +845,24 @@ fn sdl_to_key(k: Keycode) -> Option<Key> {
         Keycode::Return => Key::Enter,
         Keycode::KpEnter => Key::Enter,
         Keycode::Backspace => Key::Backspace,
-        _ => return None,
+        // any other physical key -> Char (key remapping; not used by gameplay defaults).
+        k => {
+            let name = format!("{k:?}");
+            // letters/digits: e.g. Keycode::A -> Char('A'); Keycode::Num1 -> Char('1')
+            let mut ch = name.chars();
+            match (ch.next(), ch.next()) {
+                (Some(c), None) if c.is_ascii_alphanumeric() => Key::Char(c.to_ascii_uppercase()),
+                _ if name.starts_with("Num") && name.len() == 4 => {
+                    let c = name.chars().nth(3).unwrap();
+                    if c.is_ascii_digit() {
+                        Key::Char(c)
+                    } else {
+                        return None;
+                    }
+                }
+                _ => return None,
+            }
+        }
     })
 }
 
